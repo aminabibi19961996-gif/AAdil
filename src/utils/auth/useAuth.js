@@ -22,10 +22,13 @@ export const useAuth = () => {
         auth: auth ? JSON.parse(auth) : null,
         isReady: true,
       });
+    }).catch((err) => {
+      console.error("Failed to load auth from SecureStore", err);
+      useAuthStore.setState({ isReady: true });
     });
   }, []);
 
-  useEffect(() => {}, []);
+  useEffect(() => { }, []);
 
   const signIn = useCallback(() => {
     open({ mode: 'signin' });
