@@ -21,8 +21,8 @@ import {
   Phone,
   IndianRupee,
 } from "lucide-react-native";
-import KeyboardAvoidingAnimatedView from "@/components/KeyboardAvoidingAnimatedView";
-import { getTruck, createTruckBooking } from "@/utils/dataService";
+import KeyboardAvoidingAnimatedView from "../../components/KeyboardAvoidingAnimatedView";
+import { getTruck, createTruckBooking } from "../../utils/dataService";
 
 export default function TruckBookingForm() {
   const insets = useSafeAreaInsets();

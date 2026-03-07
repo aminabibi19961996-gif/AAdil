@@ -12,8 +12,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { useRouter } from "expo-router";
 import { ArrowLeft, Plus, Edit, Trash2, Truck } from "lucide-react-native";
-import KeyboardAvoidingAnimatedView from "@/components/KeyboardAvoidingAnimatedView";
-import { listCranes, createCrane, deleteCrane } from "@/utils/dataService";
+import KeyboardAvoidingAnimatedView from "../../components/KeyboardAvoidingAnimatedView";
+import { listCranes, createCrane, deleteCrane } from "../../utils/dataService";
 
 export default function ManageCranes() {
   const insets = useSafeAreaInsets();

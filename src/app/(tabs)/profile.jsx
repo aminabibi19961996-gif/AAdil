@@ -17,7 +17,7 @@ import {
   MessageCircle,
   ChevronRight,
 } from "lucide-react-native";
-import { supabase } from "@/utils/supabase";
+import { supabase } from "../../utils/supabase";
 import { LogOut } from "lucide-react-native";
 
 export default function Profile() {

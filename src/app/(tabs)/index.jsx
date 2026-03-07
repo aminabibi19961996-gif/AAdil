@@ -13,7 +13,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { useRouter } from "expo-router";
 import { Search, MapPin, Clock, IndianRupee, Truck, Crane } from "lucide-react-native";
-import { listCranes, listTrucks } from "@/utils/dataService";
+import { listCranes, listTrucks } from "../../utils/dataService";
 
 export default function BrowsePage() {
   const insets = useSafeAreaInsets();

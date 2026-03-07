@@ -21,8 +21,8 @@ import {
   Phone,
   IndianRupee,
 } from "lucide-react-native";
-import KeyboardAvoidingAnimatedView from "@/components/KeyboardAvoidingAnimatedView";
-import { getCrane, createCraneBooking } from "@/utils/dataService";
+import KeyboardAvoidingAnimatedView from "../../components/KeyboardAvoidingAnimatedView";
+import { getCrane, createCraneBooking } from "../../utils/dataService";
 
 export default function BookingForm() {
   const insets = useSafeAreaInsets();

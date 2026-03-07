@@ -12,7 +12,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { ArrowLeft, MapPin, IndianRupee, Calendar, Truck } from "lucide-react-native";
-import { getTruck } from "@/utils/dataService";
+import { getTruck } from "../../utils/dataService";
 
 export default function TruckDetails() {
   const insets = useSafeAreaInsets();

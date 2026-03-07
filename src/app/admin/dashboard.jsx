@@ -20,7 +20,7 @@ import {
   XCircle,
   Clock,
 } from "lucide-react-native";
-import { getAdminAnalytics, updateBookingStatus } from "@/utils/dataService";
+import { getAdminAnalytics, updateBookingStatus } from "../../utils/dataService";
 
 export default function AdminDashboard() {
   const insets = useSafeAreaInsets();

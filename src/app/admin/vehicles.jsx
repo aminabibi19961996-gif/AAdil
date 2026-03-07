@@ -12,8 +12,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { useRouter } from "expo-router";
 import { ArrowLeft, Plus, Truck } from "lucide-react-native";
-import KeyboardAvoidingAnimatedView from "@/components/KeyboardAvoidingAnimatedView";
-import { supabase } from "@/utils/supabase";
+import KeyboardAvoidingAnimatedView from "../../components/KeyboardAvoidingAnimatedView";
+import { supabase } from "../../utils/supabase";
 
 export default function ManageVehicles() {
   const insets = useSafeAreaInsets();

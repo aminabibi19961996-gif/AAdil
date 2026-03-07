@@ -12,7 +12,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { ArrowLeft, MapPin, IndianRupee, Calendar } from "lucide-react-native";
-import { getCrane } from "@/utils/dataService";
+import { getCrane } from "../../utils/dataService";
 
 export default function CraneDetails() {
   const insets = useSafeAreaInsets();

@@ -16,7 +16,7 @@ import {
   IndianRupee,
   Search,
 } from "lucide-react-native";
-import { listBookingsByPhone } from "@/utils/dataService";
+import { listBookingsByPhone } from "../../utils/dataService";
 
 export default function MyBookings() {
   const insets = useSafeAreaInsets();
