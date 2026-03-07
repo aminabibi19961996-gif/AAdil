@@ -1,8 +1,8 @@
 diff --git a/node_modules/@react-native-community/netinfo/src/internal/nativeInterface.ts b/node_modules/@react-native-community/netinfo/src/internal/nativeInterface.ts
-index 8b514f4..9135364 100644
+index 912a903..e0b0606 100644
 --- a/node_modules/@react-native-community/netinfo/src/internal/nativeInterface.ts
 +++ b/node_modules/@react-native-community/netinfo/src/internal/nativeInterface.ts
-@@ -7,28 +7,15 @@
+@@ -7,29 +7,16 @@
   * @format
   */
  
@@ -28,15 +28,15 @@ index 8b514f4..9135364 100644
   * JavaScript code and the tests
   */
  let nativeEventEmitter: NativeEventEmitter | null = null;
--const nativeInterface = Object.assign(RNCNetInfo, {
-+const nativeInterface = RNCNetInfo ? Object.assign(RNCNetInfo, {
-   get eventEmitter(): NativeEventEmitter {
-     if (!nativeEventEmitter) {
-       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-@@ -39,5 +26,5 @@ const nativeInterface = Object.assign(RNCNetInfo, {
+ 
+-export default {
++export default RNCNetInfo ? {
+   configure: RNCNetInfo.configure,
+   addListener: RNCNetInfo.addListener,
+   removeListeners: RNCNetInfo.removeListeners,
+@@ -44,4 +31,4 @@ export default {
      /// @ts-ignore
      return nativeEventEmitter;
    },
--});
-+}) : {};
- export default nativeInterface;
+-};
++} : {};
