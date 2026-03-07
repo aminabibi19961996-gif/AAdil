@@ -17,7 +17,8 @@ import {
   MessageCircle,
   ChevronRight,
 } from "lucide-react-native";
-import { useLanguageStore, useTranslation } from "@/utils/language";
+import { supabase } from "@/utils/supabase";
+import { LogOut } from "lucide-react-native";
 
 export default function Profile() {
   const insets = useSafeAreaInsets();
@@ -25,10 +26,21 @@ export default function Profile() {
   const setLanguage = useLanguageStore((state) => state.setLanguage);
   const loadLanguage = useLanguageStore((state) => state.loadLanguage);
   const [showLanguageModal, setShowLanguageModal] = useState(false);
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
     loadLanguage();
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setUser(user);
+    });
   }, []);
+
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      alert("Error logging out: " + error.message);
+    }
+  };
 
   const languages = [
     { code: "en", name: t("english"), nativeName: "English" },
@@ -67,21 +79,37 @@ export default function Profile() {
           paddingTop: insets.top + 20,
           paddingBottom: 20,
           paddingHorizontal: 20,
+          flexDirection: "row",
+          justifyContent: "space-between",
+          alignItems: "center",
         }}
       >
-        <Text
+        <View>
+          <Text
+            style={{
+              fontSize: 28,
+              fontWeight: "bold",
+              color: "#ffffff",
+              marginBottom: 4,
+            }}
+          >
+            {t("settings")}
+          </Text>
+          <Text style={{ fontSize: 14, color: "#94a3b8" }}>
+            {user?.email || t("accountSettings")}
+          </Text>
+        </View>
+
+        <TouchableOpacity
+          onPress={handleLogout}
           style={{
-            fontSize: 28,
-            fontWeight: "bold",
-            color: "#ffffff",
-            marginBottom: 4,
+            backgroundColor: "#ef4444",
+            padding: 10,
+            borderRadius: 12,
           }}
         >
-          {t("settings")}
-        </Text>
-        <Text style={{ fontSize: 14, color: "#94a3b8" }}>
-          {t("accountSettings")}
-        </Text>
+          <LogOut color="white" size={20} />
+        </TouchableOpacity>
       </View>
 
       <ScrollView

@@ -1,15 +1,18 @@
 {
   "expo": {
-    "name": "Anything mobile app",
+    "name": "cranewalah",
+    "scheme": "premium-crane",
+    "slug": "cranewalah",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSSpeechRecognitionUsageDescription": "Allow $(PRODUCT_NAME) to use speech recognition.",
+        "NSMicrophoneUsageDescription": "Allow $(PRODUCT_NAME) to use the microphone."
       }
     },
     "android": {
@@ -56,8 +59,7 @@
       ],
       "expo-font",
       "expo-secure-store",
-      "expo-web-browser",
-      "expo-speech-recognition"
+      "expo-web-browser"
     ],
     "web": {
       "bundler": "metro",
@@ -72,10 +74,9 @@
         "sitemap": false
       },
       "eas": {
-        "projectId": "10cdd8bb-f1d4-4271-ac0d-589432f3e197"
+        "projectId": "6f454bf4-4834-4673-aa73-9aacaa5ba841"
       }
     },
-    "owner": "syed2s-organization",
-    "slug": "crane-wala"
+    "owner": "mdq1996s-organization"
   }
 }
