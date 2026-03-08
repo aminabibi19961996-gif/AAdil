@@ -57,12 +57,16 @@ export default function BrowsePage() {
     fetchItems(true);
   }, [category]);
 
-  const filteredItems = items.filter(
-    (item) =>
-      item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (item.capacity || item.tonnage)?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.location?.toLowerCase().includes(searchQuery.toLowerCase()),
-  );
+  const filteredItems = items.filter((item) => {
+    const q = searchQuery.toLowerCase();
+    return (
+      (item.name || "").toLowerCase().includes(q) ||
+      (item.capacity || "").toLowerCase().includes(q) ||
+      (item.tonnage || "").toLowerCase().includes(q) ||
+      (item.location || "").toLowerCase().includes(q) ||
+      (item.description || "").toLowerCase().includes(q)
+    );
+  });
 
   const openWhatsApp = () => {
     const phoneNumber = "+919876543210";

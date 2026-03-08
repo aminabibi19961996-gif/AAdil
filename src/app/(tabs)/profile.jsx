@@ -46,6 +46,7 @@ export default function Profile() {
   const languages = [
     { code: "en", name: t("english"), nativeName: "English" },
     { code: "hi", name: t("hindi"), nativeName: "हिंदी" },
+    { code: "gu", name: "ગુજરાતી", nativeName: "ગુજરાતી" },
   ];
 
   const handleLanguageChange = async (langCode) => {
@@ -271,8 +272,6 @@ export default function Profile() {
         {/* Coming Soon */}
         <View
           style={{
-            backgroundColor:
-              "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
             borderRadius: 16,
             padding: 20,
             marginBottom: 16,

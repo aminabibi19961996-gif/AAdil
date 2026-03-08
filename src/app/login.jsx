@@ -55,12 +55,13 @@ export default function LoginScreen() {
         if (error) throw error;
       } else {
         await GoogleSignin.hasPlayServices();
-        const userInfo = await GoogleSignin.signIn();
+        const response = await GoogleSignin.signIn();
+        const idToken = response?.data?.idToken || response?.idToken;
 
-        if (userInfo.idToken) {
+        if (idToken) {
           const { data, error } = await supabase.auth.signInWithIdToken({
             provider: 'google',
-            token: userInfo.idToken,
+            token: idToken,
           });
           if (error) throw error;
           router.replace('/(tabs)');

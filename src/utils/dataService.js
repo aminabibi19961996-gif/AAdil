@@ -61,6 +61,37 @@ export async function createCrane(craneData) {
 }
 
 /**
+ * Update an existing crane.
+ */
+export async function updateCrane(id, craneData) {
+    const updates = {};
+    if (craneData.name !== undefined) updates.name = craneData.name;
+    if (craneData.capacity !== undefined) updates.capacity = craneData.capacity;
+    if (craneData.price_per_hour !== undefined) updates.price_per_hour = parseFloat(craneData.price_per_hour);
+    if (craneData.location !== undefined) updates.location = craneData.location || null;
+    if (craneData.description !== undefined) updates.description = craneData.description || null;
+    if (craneData.images !== undefined) updates.images = craneData.images;
+    if (craneData.availability_status !== undefined) updates.availability_status = craneData.availability_status;
+
+    const { data, error } = await supabase
+        .from('cranes')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
+    if (error) throw error;
+    return data;
+}
+
+/**
+ * Toggle crane availability status.
+ */
+export async function toggleCraneAvailability(id, currentStatus) {
+    const newStatus = currentStatus === 'available' ? 'unavailable' : 'available';
+    return updateCrane(id, { availability_status: newStatus });
+}
+
+/**
  * Delete a crane by ID.
  */
 export async function deleteCrane(id) {
@@ -123,6 +154,37 @@ export async function createTruck(truckData) {
 }
 
 /**
+ * Update an existing truck.
+ */
+export async function updateTruck(id, truckData) {
+    const updates = {};
+    if (truckData.name !== undefined) updates.name = truckData.name;
+    if (truckData.tonnage !== undefined) updates.tonnage = truckData.tonnage;
+    if (truckData.price_per_hour !== undefined) updates.price_per_hour = parseFloat(truckData.price_per_hour);
+    if (truckData.location !== undefined) updates.location = truckData.location || null;
+    if (truckData.description !== undefined) updates.description = truckData.description || null;
+    if (truckData.images !== undefined) updates.images = truckData.images;
+    if (truckData.availability_status !== undefined) updates.availability_status = truckData.availability_status;
+
+    const { data, error } = await supabase
+        .from('trucks')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
+    if (error) throw error;
+    return data;
+}
+
+/**
+ * Toggle truck availability status.
+ */
+export async function toggleTruckAvailability(id, currentStatus) {
+    const newStatus = currentStatus === 'available' ? 'unavailable' : 'available';
+    return updateTruck(id, { availability_status: newStatus });
+}
+
+/**
  * Delete a truck by ID.
  */
 export async function deleteTruck(id) {
@@ -171,7 +233,7 @@ export async function createCraneBooking(bookingData) {
         .from('crane_bookings')
         .insert([{
             booking_id: bookingId,
-            crane_id: parseInt(bookingData.crane_id),
+            crane_id: bookingData.crane_id,
             user_name: bookingData.user_name,
             user_phone: bookingData.user_phone,
             booking_date: bookingData.booking_date,
@@ -237,7 +299,7 @@ export async function createTruckBooking(bookingData) {
         .from('truck_bookings')
         .insert([{
             booking_id: bookingId,
-            truck_id: parseInt(bookingData.truck_id),
+            truck_id: bookingData.truck_id,
             user_name: bookingData.user_name,
             user_phone: bookingData.user_phone,
             booking_date: bookingData.booking_date,

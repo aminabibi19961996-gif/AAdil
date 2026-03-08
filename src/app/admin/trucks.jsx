@@ -7,13 +7,29 @@ import {
   TextInput,
   ActivityIndicator,
   Alert,
+  Image,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { useRouter } from "expo-router";
-import { ArrowLeft, Plus, Trash2, Truck } from "lucide-react-native";
+import {
+  ArrowLeft,
+  Plus,
+  Trash2,
+  Truck,
+  ImagePlus,
+  X,
+  ToggleLeft,
+  ToggleRight,
+} from "lucide-react-native";
+import * as ImagePicker from "expo-image-picker";
 import KeyboardAvoidingAnimatedView from "../../components/KeyboardAvoidingAnimatedView";
-import { listTrucks, createTruck, deleteTruck } from "../../utils/dataService";
+import {
+  listTrucks,
+  createTruck,
+  deleteTruck,
+  toggleTruckAvailability,
+} from "../../utils/dataService";
 
 export default function ManageTrucks() {
   const insets = useSafeAreaInsets();
@@ -27,7 +43,9 @@ export default function ManageTrucks() {
     price_per_hour: "",
     location: "",
     description: "",
+    images: [],
   });
+  const [imageUrl, setImageUrl] = useState("");
 
   useEffect(() => {
     fetchTrucks();
@@ -42,6 +60,41 @@ export default function ManageTrucks() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const pickImage = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [16, 9],
+      quality: 0.8,
+    });
+
+    if (!result.canceled && result.assets[0]) {
+      setFormData({
+        ...formData,
+        images: [...formData.images, result.assets[0].uri],
+      });
+    }
+  };
+
+  const addImageUrl = () => {
+    const url = imageUrl.trim();
+    if (!url) return;
+    if (!url.startsWith("http")) {
+      Alert.alert("Invalid URL", "Please enter a valid image URL starting with http:// or https://");
+      return;
+    }
+    setFormData({
+      ...formData,
+      images: [...formData.images, url],
+    });
+    setImageUrl("");
+  };
+
+  const removeImage = (index) => {
+    const updated = formData.images.filter((_, i) => i !== index);
+    setFormData({ ...formData, images: updated });
   };
 
   const handleSubmit = async () => {
@@ -60,6 +113,7 @@ export default function ManageTrucks() {
         price_per_hour: "",
         location: "",
         description: "",
+        images: [],
       });
       fetchTrucks();
     } catch (error) {
@@ -86,6 +140,16 @@ export default function ManageTrucks() {
         },
       },
     ]);
+  };
+
+  const handleToggleAvailability = async (id, currentStatus) => {
+    try {
+      await toggleTruckAvailability(id, currentStatus);
+      fetchTrucks();
+    } catch (error) {
+      console.error("Error toggling availability:", error);
+      Alert.alert("Error", error.message || "Failed to update status");
+    }
   };
 
   return (
@@ -149,6 +213,7 @@ export default function ManageTrucks() {
             paddingBottom: insets.bottom + 20,
           }}
           showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
         >
           {/* Add Truck Form */}
           {showForm && (
@@ -173,17 +238,13 @@ export default function ManageTrucks() {
 
               <View style={{ gap: 12 }}>
                 <View>
-                  <Text
-                    style={{ fontSize: 14, color: "#64748b", marginBottom: 8 }}
-                  >
+                  <Text style={{ fontSize: 14, color: "#64748b", marginBottom: 8 }}>
                     Truck Name *
                   </Text>
                   <TextInput
                     placeholder="e.g., Heavy Duty Tipper Truck"
                     value={formData.name}
-                    onChangeText={(text) =>
-                      setFormData({ ...formData, name: text })
-                    }
+                    onChangeText={(text) => setFormData({ ...formData, name: text })}
                     style={{
                       backgroundColor: "#f1f5f9",
                       borderRadius: 12,
@@ -196,17 +257,13 @@ export default function ManageTrucks() {
                 </View>
 
                 <View>
-                  <Text
-                    style={{ fontSize: 14, color: "#64748b", marginBottom: 8 }}
-                  >
+                  <Text style={{ fontSize: 14, color: "#64748b", marginBottom: 8 }}>
                     Tonnage *
                   </Text>
                   <TextInput
                     placeholder="e.g., 25T"
                     value={formData.tonnage}
-                    onChangeText={(text) =>
-                      setFormData({ ...formData, tonnage: text })
-                    }
+                    onChangeText={(text) => setFormData({ ...formData, tonnage: text })}
                     style={{
                       backgroundColor: "#f1f5f9",
                       borderRadius: 12,
@@ -219,17 +276,13 @@ export default function ManageTrucks() {
                 </View>
 
                 <View>
-                  <Text
-                    style={{ fontSize: 14, color: "#64748b", marginBottom: 8 }}
-                  >
+                  <Text style={{ fontSize: 14, color: "#64748b", marginBottom: 8 }}>
                     Price per Hour (₹) *
                   </Text>
                   <TextInput
                     placeholder="e.g., 2000"
                     value={formData.price_per_hour}
-                    onChangeText={(text) =>
-                      setFormData({ ...formData, price_per_hour: text })
-                    }
+                    onChangeText={(text) => setFormData({ ...formData, price_per_hour: text })}
                     keyboardType="numeric"
                     style={{
                       backgroundColor: "#f1f5f9",
@@ -243,17 +296,13 @@ export default function ManageTrucks() {
                 </View>
 
                 <View>
-                  <Text
-                    style={{ fontSize: 14, color: "#64748b", marginBottom: 8 }}
-                  >
+                  <Text style={{ fontSize: 14, color: "#64748b", marginBottom: 8 }}>
                     Location
                   </Text>
                   <TextInput
                     placeholder="e.g., Mumbai Depot"
                     value={formData.location}
-                    onChangeText={(text) =>
-                      setFormData({ ...formData, location: text })
-                    }
+                    onChangeText={(text) => setFormData({ ...formData, location: text })}
                     style={{
                       backgroundColor: "#f1f5f9",
                       borderRadius: 12,
@@ -266,17 +315,13 @@ export default function ManageTrucks() {
                 </View>
 
                 <View>
-                  <Text
-                    style={{ fontSize: 14, color: "#64748b", marginBottom: 8 }}
-                  >
+                  <Text style={{ fontSize: 14, color: "#64748b", marginBottom: 8 }}>
                     Description
                   </Text>
                   <TextInput
                     placeholder="Brief description of the truck"
                     value={formData.description}
-                    onChangeText={(text) =>
-                      setFormData({ ...formData, description: text })
-                    }
+                    onChangeText={(text) => setFormData({ ...formData, description: text })}
                     multiline
                     numberOfLines={3}
                     style={{
@@ -291,6 +336,109 @@ export default function ManageTrucks() {
                   />
                 </View>
 
+                {/* Image Section */}
+                <View>
+                  <Text style={{ fontSize: 14, color: "#64748b", marginBottom: 8 }}>
+                    Images
+                  </Text>
+
+                  {/* Image previews */}
+                  {formData.images.length > 0 && (
+                    <ScrollView
+                      horizontal
+                      showsHorizontalScrollIndicator={false}
+                      style={{ marginBottom: 12 }}
+                    >
+                      {formData.images.map((img, index) => (
+                        <View key={index} style={{ marginRight: 8, position: "relative" }}>
+                          <Image
+                            source={{ uri: img }}
+                            style={{
+                              width: 100,
+                              height: 75,
+                              borderRadius: 8,
+                              backgroundColor: "#f1f5f9",
+                            }}
+                            resizeMode="cover"
+                          />
+                          <TouchableOpacity
+                            onPress={() => removeImage(index)}
+                            style={{
+                              position: "absolute",
+                              top: -6,
+                              right: -6,
+                              width: 22,
+                              height: 22,
+                              borderRadius: 11,
+                              backgroundColor: "#dc2626",
+                              alignItems: "center",
+                              justifyContent: "center",
+                            }}
+                          >
+                            <X color="#fff" size={12} />
+                          </TouchableOpacity>
+                        </View>
+                      ))}
+                    </ScrollView>
+                  )}
+
+                  {/* Pick from gallery */}
+                  <TouchableOpacity
+                    onPress={pickImage}
+                    style={{
+                      backgroundColor: "#f1f5f9",
+                      borderRadius: 12,
+                      paddingVertical: 14,
+                      alignItems: "center",
+                      flexDirection: "row",
+                      justifyContent: "center",
+                      borderWidth: 1,
+                      borderColor: "#e2e8f0",
+                      borderStyle: "dashed",
+                      marginBottom: 8,
+                    }}
+                  >
+                    <ImagePlus color="#64748b" size={20} />
+                    <Text style={{ fontSize: 14, color: "#64748b", marginLeft: 8 }}>
+                      Pick from Gallery
+                    </Text>
+                  </TouchableOpacity>
+
+                  {/* Add image URL */}
+                  <View style={{ flexDirection: "row", gap: 8 }}>
+                    <TextInput
+                      placeholder="Or paste image URL..."
+                      value={imageUrl}
+                      onChangeText={setImageUrl}
+                      autoCapitalize="none"
+                      style={{
+                        flex: 1,
+                        backgroundColor: "#f1f5f9",
+                        borderRadius: 12,
+                        paddingHorizontal: 16,
+                        height: 44,
+                        fontSize: 14,
+                        color: "#1a2332",
+                      }}
+                    />
+                    <TouchableOpacity
+                      onPress={addImageUrl}
+                      style={{
+                        backgroundColor: "#1a2332",
+                        borderRadius: 12,
+                        paddingHorizontal: 16,
+                        height: 44,
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <Text style={{ color: "#FFB800", fontWeight: "bold", fontSize: 14 }}>
+                        Add
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+
                 <TouchableOpacity
                   onPress={handleSubmit}
                   style={{
@@ -301,13 +449,7 @@ export default function ManageTrucks() {
                     marginTop: 8,
                   }}
                 >
-                  <Text
-                    style={{
-                      fontSize: 16,
-                      fontWeight: "bold",
-                      color: "#1a2332",
-                    }}
-                  >
+                  <Text style={{ fontSize: 16, fontWeight: "bold", color: "#1a2332" }}>
                     Add Truck
                   </Text>
                 </TouchableOpacity>
@@ -341,7 +483,7 @@ export default function ManageTrucks() {
                 style={{
                   backgroundColor: "#ffffff",
                   borderRadius: 16,
-                  padding: 16,
+                  overflow: "hidden",
                   marginBottom: 12,
                   shadowColor: "#000",
                   shadowOffset: { width: 0, height: 2 },
@@ -350,104 +492,158 @@ export default function ManageTrucks() {
                   elevation: 3,
                 }}
               >
-                <View
-                  style={{
-                    flexDirection: "row",
-                    justifyContent: "space-between",
-                    marginBottom: 12,
-                  }}
-                >
-                  <View style={{ flex: 1 }}>
-                    <Text
+                {/* Truck image */}
+                {truck.images?.[0] && (
+                  <Image
+                    source={{ uri: truck.images[0] }}
+                    style={{ width: "100%", height: 120 }}
+                    resizeMode="cover"
+                  />
+                )}
+
+                <View style={{ padding: 16 }}>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                      marginBottom: 12,
+                    }}
+                  >
+                    <View style={{ flex: 1 }}>
+                      <Text
+                        style={{
+                          fontSize: 18,
+                          fontWeight: "bold",
+                          color: "#1a2332",
+                          marginBottom: 4,
+                        }}
+                      >
+                        {truck.name}
+                      </Text>
+                      <View
+                        style={{
+                          flexDirection: "row",
+                          alignItems: "center",
+                          gap: 8,
+                        }}
+                      >
+                        <View
+                          style={{
+                            backgroundColor: "#FFB800",
+                            paddingHorizontal: 8,
+                            paddingVertical: 4,
+                            borderRadius: 6,
+                          }}
+                        >
+                          <Text
+                            style={{
+                              fontSize: 12,
+                              fontWeight: "bold",
+                              color: "#1a2332",
+                            }}
+                          >
+                            {truck.tonnage}
+                          </Text>
+                        </View>
+                        <Text style={{ fontSize: 14, color: "#64748b" }}>
+                          ₹{truck.price_per_hour}/hr
+                        </Text>
+                        {truck.images?.length > 0 && (
+                          <Text style={{ fontSize: 12, color: "#94a3b8" }}>
+                            📷 {truck.images.length}
+                          </Text>
+                        )}
+                      </View>
+                    </View>
+                    <TouchableOpacity
+                      onPress={() => handleDelete(truck.id)}
                       style={{
-                        fontSize: 18,
-                        fontWeight: "bold",
-                        color: "#1a2332",
-                        marginBottom: 4,
+                        width: 40,
+                        height: 40,
+                        borderRadius: 20,
+                        backgroundColor: "#fee2e2",
+                        alignItems: "center",
+                        justifyContent: "center",
                       }}
                     >
-                      {truck.name}
+                      <Trash2 color="#dc2626" size={18} />
+                    </TouchableOpacity>
+                  </View>
+
+                  {truck.description && (
+                    <Text
+                      style={{ fontSize: 14, color: "#64748b", marginBottom: 8 }}
+                    >
+                      {truck.description}
                     </Text>
-                    <View
+                  )}
+
+                  {truck.location && (
+                    <Text style={{ fontSize: 12, color: "#94a3b8" }}>
+                      📍 {truck.location}
+                    </Text>
+                  )}
+
+                  <View
+                    style={{
+                      marginTop: 12,
+                      paddingTop: 12,
+                      borderTopWidth: 1,
+                      borderColor: "#e2e8f0",
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Text
+                      style={{
+                        fontSize: 12,
+                        fontWeight: "bold",
+                        color:
+                          truck.availability_status === "available"
+                            ? "#16a34a"
+                            : "#dc2626",
+                        textTransform: "uppercase",
+                      }}
+                    >
+                      {truck.availability_status}
+                    </Text>
+                    <TouchableOpacity
+                      onPress={() =>
+                        handleToggleAvailability(truck.id, truck.availability_status)
+                      }
                       style={{
                         flexDirection: "row",
                         alignItems: "center",
-                        gap: 8,
+                        backgroundColor:
+                          truck.availability_status === "available"
+                            ? "#dcfce7"
+                            : "#fee2e2",
+                        paddingHorizontal: 12,
+                        paddingVertical: 6,
+                        borderRadius: 8,
                       }}
                     >
-                      <View
+                      {truck.availability_status === "available" ? (
+                        <ToggleRight color="#16a34a" size={18} />
+                      ) : (
+                        <ToggleLeft color="#dc2626" size={18} />
+                      )}
+                      <Text
                         style={{
-                          backgroundColor: "#FFB800",
-                          paddingHorizontal: 8,
-                          paddingVertical: 4,
-                          borderRadius: 6,
+                          fontSize: 12,
+                          fontWeight: "bold",
+                          color:
+                            truck.availability_status === "available"
+                              ? "#16a34a"
+                              : "#dc2626",
+                          marginLeft: 4,
                         }}
                       >
-                        <Text
-                          style={{
-                            fontSize: 12,
-                            fontWeight: "bold",
-                            color: "#1a2332",
-                          }}
-                        >
-                          {truck.tonnage}
-                        </Text>
-                      </View>
-                      <Text style={{ fontSize: 14, color: "#64748b" }}>
-                        ₹{truck.price_per_hour}/hr
+                        Toggle
                       </Text>
-                    </View>
+                    </TouchableOpacity>
                   </View>
-                  <TouchableOpacity
-                    onPress={() => handleDelete(truck.id)}
-                    style={{
-                      width: 40,
-                      height: 40,
-                      borderRadius: 20,
-                      backgroundColor: "#fee2e2",
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                  >
-                    <Trash2 color="#dc2626" size={18} />
-                  </TouchableOpacity>
-                </View>
-
-                {truck.description && (
-                  <Text
-                    style={{ fontSize: 14, color: "#64748b", marginBottom: 8 }}
-                  >
-                    {truck.description}
-                  </Text>
-                )}
-
-                {truck.location && (
-                  <Text style={{ fontSize: 12, color: "#94a3b8" }}>
-                    📍 {truck.location}
-                  </Text>
-                )}
-
-                <View
-                  style={{
-                    marginTop: 12,
-                    paddingTop: 12,
-                    borderTopWidth: 1,
-                    borderColor: "#e2e8f0",
-                  }}
-                >
-                  <Text
-                    style={{
-                      fontSize: 12,
-                      fontWeight: "bold",
-                      color:
-                        truck.availability_status === "available"
-                          ? "#16a34a"
-                          : "#dc2626",
-                      textTransform: "uppercase",
-                    }}
-                  >
-                    {truck.availability_status}
-                  </Text>
                 </View>
               </View>
             ))
