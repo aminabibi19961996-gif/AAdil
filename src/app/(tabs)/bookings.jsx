@@ -21,7 +21,7 @@ import { listBookingsByPhone } from "../../utils/dataService";
 export default function MyBookings() {
   const insets = useSafeAreaInsets();
   const [bookings, setBookings] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState("");
   const [searchPerformed, setSearchPerformed] = useState(false);
 

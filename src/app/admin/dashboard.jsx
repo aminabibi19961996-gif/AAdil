@@ -437,7 +437,7 @@ export default function AdminDashboard() {
                       color: "#1a2332",
                     }}
                   >
-                    {booking.crane_name}
+                    {booking.crane_name || booking.truck_name}
                   </Text>
                   <Text style={{ fontSize: 14, color: "#64748b" }}>
                     {booking.user_name} • {booking.user_phone}

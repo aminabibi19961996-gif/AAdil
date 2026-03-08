@@ -18,6 +18,7 @@ import {
   ChevronRight,
 } from "lucide-react-native";
 import { supabase } from "../../utils/supabase";
+import { useTranslation, useLanguageStore } from "../../utils/language";
 import { LogOut } from "lucide-react-native";
 
 export default function Profile() {
