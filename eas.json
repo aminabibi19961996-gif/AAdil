@@ -7,7 +7,7 @@
 		"base": {
 			"node": "22.22.0",
 			"cache": {
-				"key": "v1"
+				"key": "v2"
 			}
 		},
 		"development": {
