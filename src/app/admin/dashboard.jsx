@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   View,
   Text,
@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Alert,
+  RefreshControl,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
@@ -27,21 +28,31 @@ export default function AdminDashboard() {
   const router = useRouter();
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     fetchAnalytics();
   }, []);
 
-  const fetchAnalytics = async () => {
+  const fetchAnalytics = async (isRefresh = false) => {
     try {
+      if (isRefresh) setRefreshing(true);
+      setError(null);
       const data = await getAdminAnalytics();
       setAnalytics(data);
-    } catch (error) {
-      console.error("Error fetching analytics:", error);
+    } catch (err) {
+      console.error("Error fetching analytics:", err);
+      setError("Could not load analytics. Pull down to retry.");
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
+
+  const onRefresh = useCallback(() => {
+    fetchAnalytics(true);
+  }, []);
 
   const handleBookingAction = async (bookingId, status, bookingType) => {
     try {
@@ -114,6 +125,14 @@ export default function AdminDashboard() {
           paddingBottom: insets.bottom + 20,
         }}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor="#FFB800"
+            colors={["#FFB800"]}
+          />
+        }
       >
         {/* Stats Grid */}
         <View

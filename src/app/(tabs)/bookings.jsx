@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   View,
   Text,
@@ -24,17 +24,20 @@ export default function MyBookings() {
   const [loading, setLoading] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState("");
   const [searchPerformed, setSearchPerformed] = useState(false);
+  const [error, setError] = useState(null);
 
   const fetchBookings = async () => {
     if (!phoneNumber) return;
 
     setLoading(true);
     setSearchPerformed(true);
+    setError(null);
     try {
       const data = await listBookingsByPhone(phoneNumber);
       setBookings(data);
-    } catch (error) {
-      console.error("Error fetching bookings:", error);
+    } catch (err) {
+      console.error("Error fetching bookings:", err);
+      setError("Could not load bookings. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -165,6 +168,32 @@ export default function MyBookings() {
             >
               Enter your phone number to view your bookings
             </Text>
+          </View>
+        ) : error ? (
+          <View style={{ paddingTop: 40, alignItems: "center" }}>
+            <Text
+              style={{
+                fontSize: 18,
+                color: "#dc2626",
+                textAlign: "center",
+                marginBottom: 16,
+              }}
+            >
+              {error}
+            </Text>
+            <TouchableOpacity
+              onPress={fetchBookings}
+              style={{
+                backgroundColor: "#FFB800",
+                paddingVertical: 12,
+                paddingHorizontal: 24,
+                borderRadius: 12,
+              }}
+            >
+              <Text style={{ fontSize: 16, fontWeight: "bold", color: "#1a2332" }}>
+                Retry
+              </Text>
+            </TouchableOpacity>
           </View>
         ) : bookings.length === 0 ? (
           <View style={{ paddingTop: 40, alignItems: "center" }}>

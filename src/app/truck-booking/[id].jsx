@@ -31,6 +31,7 @@ export default function TruckBookingForm() {
   const [truck, setTruck] = useState(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [loadError, setLoadError] = useState(null);
 
   const [formData, setFormData] = useState({
     user_name: "",
@@ -48,10 +49,12 @@ export default function TruckBookingForm() {
 
   const fetchTruckDetails = async () => {
     try {
+      setLoadError(null);
       const data = await getTruck(id);
       setTruck(data);
-    } catch (error) {
-      console.error("Error fetching truck details:", error);
+    } catch (err) {
+      console.error("Error fetching truck details:", err);
+      setLoadError("Could not load truck details.");
     } finally {
       setLoading(false);
     }
@@ -76,6 +79,25 @@ export default function TruckBookingForm() {
       !formData.site_location
     ) {
       Alert.alert("Missing Information", "Please fill in all fields");
+      return;
+    }
+
+    // Validate date format
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    if (!dateRegex.test(formData.booking_date)) {
+      Alert.alert("Invalid Date", "Please enter date in YYYY-MM-DD format (e.g., 2026-03-15)");
+      return;
+    }
+    const parsedDate = new Date(formData.booking_date);
+    if (isNaN(parsedDate.getTime())) {
+      Alert.alert("Invalid Date", "The date you entered is not valid.");
+      return;
+    }
+
+    // Validate time format
+    const timeRegex = /^\d{2}:\d{2}$/;
+    if (!timeRegex.test(formData.start_time)) {
+      Alert.alert("Invalid Time", "Please enter time in HH:MM format (e.g., 09:00)");
       return;
     }
 
@@ -127,6 +149,35 @@ export default function TruckBookingForm() {
         }}
       >
         <ActivityIndicator size="large" color="#FFB800" />
+      </View>
+    );
+  }
+
+  if (!truck) {
+    return (
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: "#f8fafc",
+          alignItems: "center",
+          justifyContent: "center",
+          paddingHorizontal: 24,
+        }}
+      >
+        <Text style={{ fontSize: 18, color: "#64748b", marginBottom: 16 }}>
+          {loadError || "Truck not found"}
+        </Text>
+        <TouchableOpacity
+          onPress={() => { setLoading(true); fetchTruckDetails(); }}
+          style={{
+            backgroundColor: "#FFB800",
+            paddingVertical: 12,
+            paddingHorizontal: 24,
+            borderRadius: 12,
+          }}
+        >
+          <Text style={{ fontSize: 16, fontWeight: "bold", color: "#1a2332" }}>Try Again</Text>
+        </TouchableOpacity>
       </View>
     );
   }

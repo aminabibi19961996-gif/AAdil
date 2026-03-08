@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   View,
   Text,
@@ -8,6 +8,8 @@ import {
   TextInput,
   ActivityIndicator,
   Linking,
+  RefreshControl,
+  useWindowDimensions,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
@@ -18,18 +20,23 @@ import { listCranes, listTrucks } from "../../utils/dataService";
 export default function BrowsePage() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const { width } = useWindowDimensions();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [category, setCategory] = useState("cranes"); // 'cranes' or 'trucks'
+  const [category, setCategory] = useState("cranes");
 
   useEffect(() => {
     fetchItems();
   }, [category]);
 
-  const fetchItems = async () => {
+  const fetchItems = async (isRefresh = false) => {
     try {
-      setLoading(true);
+      if (isRefresh) setRefreshing(true);
+      else setLoading(true);
+      setError(null);
       if (category === "cranes") {
         const data = await listCranes("available");
         setItems(data);
@@ -37,12 +44,18 @@ export default function BrowsePage() {
         const data = await listTrucks("available");
         setItems(data);
       }
-    } catch (error) {
-      console.error(`Error fetching ${category}:`, error);
+    } catch (err) {
+      console.error(`Error fetching ${category}:`, err);
+      setError(`Could not load ${category}. Pull down to retry.`);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
+
+  const onRefresh = useCallback(() => {
+    fetchItems(true);
+  }, [category]);
 
   const filteredItems = items.filter(
     (item) =>
@@ -211,6 +224,14 @@ export default function BrowsePage() {
           paddingBottom: insets.bottom + 80,
         }}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor="#FFB800"
+            colors={["#FFB800"]}
+          />
+        }
       >
         {loading ? (
           <View style={{ paddingTop: 40, alignItems: "center" }}>
@@ -218,6 +239,27 @@ export default function BrowsePage() {
             <Text style={{ marginTop: 12, color: "#64748b" }}>
               Loading {getItemTitle()}...
             </Text>
+          </View>
+        ) : error ? (
+          <View style={{ paddingTop: 40, alignItems: "center" }}>
+            <Text
+              style={{ fontSize: 18, color: "#dc2626", textAlign: "center", marginBottom: 16 }}
+            >
+              {error}
+            </Text>
+            <TouchableOpacity
+              onPress={() => fetchItems()}
+              style={{
+                backgroundColor: "#FFB800",
+                paddingVertical: 12,
+                paddingHorizontal: 24,
+                borderRadius: 12,
+              }}
+            >
+              <Text style={{ fontSize: 16, fontWeight: "bold", color: "#1a2332" }}>
+                Try Again
+              </Text>
+            </TouchableOpacity>
           </View>
         ) : filteredItems.length === 0 ? (
           <View style={{ paddingTop: 40, alignItems: "center" }}>
@@ -252,7 +294,7 @@ export default function BrowsePage() {
                     item.images?.[0] ||
                     "https://images.unsplash.com/photo-1590856029826-c7a73142bbf1?w=800",
                 }}
-                style={{ width: "100%", height: 200 }}
+                style={{ width: "100%", height: width > 600 ? 280 : 200 }}
                 resizeMode="cover"
               />
 

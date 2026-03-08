@@ -196,35 +196,6 @@ export default function AdminLogin() {
             )}
           </TouchableOpacity>
         </View>
-
-        {/* Demo Credentials */}
-        <View
-          style={{
-            backgroundColor: "#fef3c7",
-            borderRadius: 12,
-            padding: 16,
-            marginTop: 20,
-            borderWidth: 1,
-            borderColor: "#FFB800",
-          }}
-        >
-          <Text
-            style={{
-              fontSize: 14,
-              fontWeight: "bold",
-              color: "#92400e",
-              marginBottom: 8,
-            }}
-          >
-            Demo Credentials
-          </Text>
-          <Text style={{ fontSize: 14, color: "#92400e" }}>
-            Email: admin@cranerental.com
-          </Text>
-          <Text style={{ fontSize: 14, color: "#92400e" }}>
-            Password: admin123
-          </Text>
-        </View>
       </ScrollView>
     </View>
   );

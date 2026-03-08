@@ -7,6 +7,7 @@ import {
   Image,
   ActivityIndicator,
   Linking,
+  useWindowDimensions,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
@@ -18,8 +19,10 @@ export default function CraneDetails() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { id } = useLocalSearchParams();
+  const { width } = useWindowDimensions();
   const [crane, setCrane] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     fetchCraneDetails();
@@ -27,10 +30,12 @@ export default function CraneDetails() {
 
   const fetchCraneDetails = async () => {
     try {
+      setError(null);
       const data = await getCrane(id);
       setCrane(data);
-    } catch (error) {
-      console.error("Error fetching crane details:", error);
+    } catch (err) {
+      console.error("Error fetching crane details:", err);
+      setError("Could not load crane details.");
     } finally {
       setLoading(false);
     }
@@ -59,9 +64,23 @@ export default function CraneDetails() {
           backgroundColor: "#f8fafc",
           alignItems: "center",
           justifyContent: "center",
+          paddingHorizontal: 24,
         }}
       >
-        <Text style={{ fontSize: 18, color: "#64748b" }}>Crane not found</Text>
+        <Text style={{ fontSize: 18, color: "#64748b", marginBottom: 16 }}>
+          {error || "Crane not found"}
+        </Text>
+        <TouchableOpacity
+          onPress={() => { setLoading(true); fetchCraneDetails(); }}
+          style={{
+            backgroundColor: "#FFB800",
+            paddingVertical: 12,
+            paddingHorizontal: 24,
+            borderRadius: 12,
+          }}
+        >
+          <Text style={{ fontSize: 16, fontWeight: "bold", color: "#1a2332" }}>Try Again</Text>
+        </TouchableOpacity>
       </View>
     );
   }
@@ -78,7 +97,7 @@ export default function CraneDetails() {
               crane.images?.[0] ||
               "https://images.unsplash.com/photo-1590856029826-c7a73142bbf1?w=800",
           }}
-          style={{ width: "100%", height: 300 }}
+          style={{ width: "100%", height: width > 600 ? 400 : 300 }}
           resizeMode="cover"
         />
 
