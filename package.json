@@ -159,5 +159,8 @@
         "listUnknownPackages": false
       }
     }
+  },
+  "engines": {
+    "node": ">=22.22.0"
   }
 }

@@ -4,20 +4,30 @@
 		"appVersionSource": "remote"
 	},
 	"build": {
+		"base": {
+			"node": "22.22.0",
+			"cache": {
+				"key": "v1"
+			}
+		},
 		"development": {
+			"extends": "base",
 			"developmentClient": true,
 			"distribution": "internal"
 		},
 		"preview": {
+			"extends": "base",
 			"distribution": "internal"
 		},
 		"preview-apk": {
+			"extends": "base",
 			"distribution": "internal",
 			"android": {
 				"buildType": "apk"
 			}
 		},
 		"production": {
+			"extends": "base",
 			"autoIncrement": true,
 			"env": {
 				"EXPO_PUBLIC_APP_URL": "https://e9a73bc2-3956-479d-b60d-d23d0db78403.created.app",
@@ -34,6 +44,7 @@
 			}
 		},
 		"production-apk": {
+			"extends": "base",
 			"autoIncrement": true,
 			"android": {
 				"buildType": "apk"
