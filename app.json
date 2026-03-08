@@ -12,7 +12,8 @@
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
         "NSSpeechRecognitionUsageDescription": "Allow $(PRODUCT_NAME) to use speech recognition.",
-        "NSMicrophoneUsageDescription": "Allow $(PRODUCT_NAME) to use the microphone."
+        "NSMicrophoneUsageDescription": "Allow $(PRODUCT_NAME) to use the microphone.",
+        "NSPhotoLibraryUsageDescription": "Allow $(PRODUCT_NAME) to access your photos for crane and truck uploads."
       }
     },
     "android": {
@@ -46,7 +47,12 @@
         "expo-build-properties",
         {
           "ios": {
-            "useFrameworks": "static"
+            "useFrameworks": "static",
+            "deploymentTarget": "15.1"
+          },
+          "android": {
+            "kotlinVersion": "1.9.24",
+            "minSdkVersion": 24
           }
         }
       ],
@@ -59,7 +65,11 @@
       ],
       "expo-font",
       "expo-secure-store",
-      "expo-web-browser"
+      "expo-web-browser",
+      "expo-image-picker",
+      "expo-location",
+      "@react-native-google-signin/google-signin",
+      "expo-notifications"
     ],
     "web": {
       "bundler": "metro",
