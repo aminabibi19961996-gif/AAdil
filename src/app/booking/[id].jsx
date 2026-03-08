@@ -8,7 +8,9 @@ import {
   ActivityIndicator,
   Alert,
   Linking,
+  Platform,
 } from "react-native";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { useRouter, useLocalSearchParams } from "expo-router";
@@ -42,6 +44,12 @@ export default function BookingForm() {
     site_location: "",
     is_emergency: false,
   });
+
+  // Date/Time picker state
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [selectedTime, setSelectedTime] = useState(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showTimePicker, setShowTimePicker] = useState(false);
 
   useEffect(() => {
     fetchCraneDetails();
@@ -79,25 +87,6 @@ export default function BookingForm() {
       !formData.site_location
     ) {
       Alert.alert("Missing Information", "Please fill in all fields");
-      return;
-    }
-
-    // Validate date format
-    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-    if (!dateRegex.test(formData.booking_date)) {
-      Alert.alert("Invalid Date", "Please enter date in YYYY-MM-DD format (e.g., 2026-03-15)");
-      return;
-    }
-    const parsedDate = new Date(formData.booking_date);
-    if (isNaN(parsedDate.getTime())) {
-      Alert.alert("Invalid Date", "The date you entered is not valid.");
-      return;
-    }
-
-    // Validate time format
-    const timeRegex = /^\d{2}:\d{2}$/;
-    if (!timeRegex.test(formData.start_time)) {
-      Alert.alert("Invalid Time", "Please enter time in HH:MM format (e.g., 09:00)");
       return;
     }
 
@@ -337,9 +326,10 @@ export default function BookingForm() {
 
             <View style={{ marginBottom: 16 }}>
               <Text style={{ fontSize: 14, color: "#64748b", marginBottom: 8 }}>
-                Date (YYYY-MM-DD)
+                Date
               </Text>
-              <View
+              <TouchableOpacity
+                onPress={() => setShowDatePicker(true)}
                 style={{
                   flexDirection: "row",
                   alignItems: "center",
@@ -350,27 +340,49 @@ export default function BookingForm() {
                 }}
               >
                 <Calendar color="#64748b" size={20} />
-                <TextInput
-                  placeholder="2026-03-15"
-                  value={formData.booking_date}
-                  onChangeText={(text) =>
-                    setFormData({ ...formData, booking_date: text })
-                  }
+                <Text
                   style={{
                     flex: 1,
                     marginLeft: 12,
                     fontSize: 16,
-                    color: "#1a2332",
+                    color: formData.booking_date ? "#1a2332" : "#94a3b8",
+                  }}
+                >
+                  {formData.booking_date
+                    ? selectedDate.toLocaleDateString("en-IN", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                      })
+                    : "Select date"}
+                </Text>
+              </TouchableOpacity>
+              {showDatePicker && (
+                <DateTimePicker
+                  value={selectedDate}
+                  mode="date"
+                  display={Platform.OS === "ios" ? "spinner" : "default"}
+                  minimumDate={new Date()}
+                  onChange={(event, date) => {
+                    setShowDatePicker(Platform.OS === "ios");
+                    if (date) {
+                      setSelectedDate(date);
+                      const yyyy = date.getFullYear();
+                      const mm = String(date.getMonth() + 1).padStart(2, "0");
+                      const dd = String(date.getDate()).padStart(2, "0");
+                      setFormData({ ...formData, booking_date: `${yyyy}-${mm}-${dd}` });
+                    }
                   }}
                 />
-              </View>
+              )}
             </View>
 
             <View style={{ marginBottom: 16 }}>
               <Text style={{ fontSize: 14, color: "#64748b", marginBottom: 8 }}>
-                Start Time (HH:MM)
+                Start Time
               </Text>
-              <View
+              <TouchableOpacity
+                onPress={() => setShowTimePicker(true)}
                 style={{
                   flexDirection: "row",
                   alignItems: "center",
@@ -381,20 +393,40 @@ export default function BookingForm() {
                 }}
               >
                 <Clock color="#64748b" size={20} />
-                <TextInput
-                  placeholder="09:00"
-                  value={formData.start_time}
-                  onChangeText={(text) =>
-                    setFormData({ ...formData, start_time: text })
-                  }
+                <Text
                   style={{
                     flex: 1,
                     marginLeft: 12,
                     fontSize: 16,
-                    color: "#1a2332",
+                    color: formData.start_time ? "#1a2332" : "#94a3b8",
+                  }}
+                >
+                  {formData.start_time
+                    ? selectedTime.toLocaleTimeString("en-IN", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        hour12: true,
+                      })
+                    : "Select time"}
+                </Text>
+              </TouchableOpacity>
+              {showTimePicker && (
+                <DateTimePicker
+                  value={selectedTime}
+                  mode="time"
+                  display={Platform.OS === "ios" ? "spinner" : "default"}
+                  is24Hour={false}
+                  onChange={(event, time) => {
+                    setShowTimePicker(Platform.OS === "ios");
+                    if (time) {
+                      setSelectedTime(time);
+                      const hh = String(time.getHours()).padStart(2, "0");
+                      const min = String(time.getMinutes()).padStart(2, "0");
+                      setFormData({ ...formData, start_time: `${hh}:${min}` });
+                    }
                   }}
                 />
-              </View>
+              )}
             </View>
 
             <View style={{ marginBottom: 16 }}>

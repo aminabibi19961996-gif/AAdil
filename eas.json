@@ -29,7 +29,8 @@
 				"EXPO_PUBLIC_NEONDB_URL": "postgresql://neondb_owner:npg_Uge6l5kyvjWc@ep-bold-thunder-a4yhhuxl-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require",
 				"EXPO_PUBLIC_SUPABASE_URL": "https://ivhovvnpaxnxeagwkbay.supabase.co",
 				"EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_K2WinTgj98Wd7KQgyzBK4g_U3ZFnVFn",
-				"EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY": "sb_publishable_K2WinTgj98Wd7KQgyzBK4g_U3ZFnVFn"
+				"EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY": "sb_publishable_K2WinTgj98Wd7KQgyzBK4g_U3ZFnVFn",
+				"EXPO_PUBLIC_ADMIN_EMAIL": "admin@cranewalah.com"
 			}
 		},
 		"production-apk": {
@@ -47,7 +48,8 @@
 				"EXPO_PUBLIC_NEONDB_URL": "postgresql://neondb_owner:npg_Uge6l5kyvjWc@ep-bold-thunder-a4yhhuxl-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require",
 				"EXPO_PUBLIC_SUPABASE_URL": "https://ivhovvnpaxnxeagwkbay.supabase.co",
 				"EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_K2WinTgj98Wd7KQgyzBK4g_U3ZFnVFn",
-				"EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY": "sb_publishable_K2WinTgj98Wd7KQgyzBK4g_U3ZFnVFn"
+				"EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY": "sb_publishable_K2WinTgj98Wd7KQgyzBK4g_U3ZFnVFn",
+				"EXPO_PUBLIC_ADMIN_EMAIL": "admin@cranewalah.com"
 			}
 		}
 	},
