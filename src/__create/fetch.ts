@@ -47,9 +47,10 @@ const fetchToWeb = async function fetchWithHeaders(...args: Params) {
   }
 
   const isExternalFetch = !isFirstPartyURL(url);
-  // we should not add headers to requests that don't go to our own server
+  // External APIs (Supabase, etc.) should use native fetch, not expoFetch,
+  // to avoid silent failures in production builds.
   if (isExternalFetch) {
-    return expoFetch(input, init);
+    return originalFetch(input, init);
   }
 
   let finalInput = input;
