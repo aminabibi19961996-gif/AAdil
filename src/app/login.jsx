@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -21,8 +21,7 @@ import { Mail, Smartphone, ArrowRight, CheckCircle2 } from 'lucide-react-native'
 
 if (Platform.OS !== 'web') {
   GoogleSignin.configure({
-    webClientId: '554236147468-o9kc52m0f1jjgaa1qskto4b7kgdj5gim.apps.googleusercontent.com',
-    iosClientId: '554236147468-md9qq3rntkfsf0e6ot8ssuvvdhv9ttr2.apps.googleusercontent.com',
+    webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
     scopes: ['profile', 'email'],
   });
 }
@@ -33,14 +32,6 @@ export default function LoginScreen() {
   const [otp, setOtp] = useState('');
   const [step, setStep] = useState('EMAIL');
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        router.replace('/(tabs)');
-      }
-    });
-  }, []);
 
   const initiateGoogleLogin = async () => {
     try {
@@ -56,28 +47,47 @@ export default function LoginScreen() {
       } else {
         await GoogleSignin.hasPlayServices();
         const response = await GoogleSignin.signIn();
+        
+        // v16 returns data.idToken, older versions return idToken directly
         const idToken = response?.data?.idToken || response?.idToken;
+        
+        if (__DEV__) console.log('Google Sign-In response received, idToken present:', !!idToken);
 
-        if (idToken) {
-          const { data, error } = await supabase.auth.signInWithIdToken({
-            provider: 'google',
-            token: idToken,
-          });
-          if (error) throw error;
-          router.replace('/(tabs)');
-        } else {
-          throw new Error('No ID token present!');
+        if (!idToken) {
+          throw new Error('No ID token received from Google. Please try again.');
         }
+
+        const { data, error } = await supabase.auth.signInWithIdToken({
+          provider: 'google',
+          token: idToken,
+        });
+
+        if (error) {
+          if (__DEV__) console.error('Supabase signInWithIdToken error:', JSON.stringify(error));
+          Alert.alert(
+            'Login Failed',
+            error.message || 'Could not complete Google sign-in. Please try again.'
+          );
+          return;
+        }
+
+        if (__DEV__) console.log('Supabase auth successful, session:', !!data?.session);
+        // Navigation is handled by _layout.jsx onAuthStateChange
+        // No need to manually navigate here
       }
     } catch (error) {
+      if (__DEV__) console.error('Google Sign-In error:', JSON.stringify(error));
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-        // user cancelled
+        // user cancelled — do nothing
       } else if (error.code === statusCodes.IN_PROGRESS) {
-        // already in progress
+        // already in progress — do nothing
       } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-        Alert.alert('Play services not available or outdated');
+        Alert.alert('Error', 'Google Play Services are not available on this device.');
       } else {
-        Alert.alert('Google Sign-In Error', error.message || 'Something went wrong.');
+        Alert.alert(
+          'Google Sign-In Error',
+          error.message || 'Something went wrong. Please try again.'
+        );
       }
     } finally {
       setLoading(false);
@@ -91,7 +101,13 @@ export default function LoginScreen() {
     }
     setLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithOtp({ email });
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          shouldCreateUser: true,
+          emailRedirectTo: undefined,
+        },
+      });
       if (error) throw error;
       setStep('OTP');
     } catch (error) {
@@ -114,7 +130,7 @@ export default function LoginScreen() {
         type: 'email',
       });
       if (error) throw error;
-      router.replace('/(tabs)');
+      // Navigation is handled by _layout.jsx onAuthStateChange
     } catch (error) {
       Alert.alert('Error verifying OTP', error.message);
     } finally {
@@ -328,7 +344,7 @@ export default function LoginScreen() {
                   marginBottom: 8,
                 }}
               >
-                6-Digit Code
+                Verification Code
               </Text>
               <View
                 style={{
@@ -342,15 +358,15 @@ export default function LoginScreen() {
                 }}
               >
                 <TextInput
-                  placeholder="000000"
+                  placeholder="00000000"
                   placeholderTextColor="#94a3b8"
                   value={otp}
                   onChangeText={setOtp}
                   keyboardType="number-pad"
-                  maxLength={6}
+                  maxLength={8}
                   style={{
-                    fontSize: 28,
-                    letterSpacing: 12,
+                    fontSize: 24,
+                    letterSpacing: 8,
                     textAlign: 'center',
                     fontWeight: 'bold',
                     color: '#1a2332',

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -23,6 +23,11 @@ export default function CraneDetails() {
   const [crane, setCrane] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const isMounted = useRef(true);
+
+  useEffect(() => {
+    return () => { isMounted.current = false; };
+  }, []);
 
   useEffect(() => {
     fetchCraneDetails();
@@ -32,12 +37,12 @@ export default function CraneDetails() {
     try {
       setError(null);
       const data = await getCrane(id);
-      setCrane(data);
+      if (isMounted.current) setCrane(data);
     } catch (err) {
-      console.error("Error fetching crane details:", err);
-      setError("Could not load crane details.");
+      if (__DEV__) console.error("Error fetching crane details:", err);
+      if (isMounted.current) setError("Could not load crane details.");
     } finally {
-      setLoading(false);
+      if (isMounted.current) setLoading(false);
     }
   };
 

@@ -1,8 +1,8 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
   View,
   Text,
-  ScrollView,
+  FlatList,
   TouchableOpacity,
   Image,
   TextInput,
@@ -27,6 +27,11 @@ export default function BrowsePage() {
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [category, setCategory] = useState("cranes");
+  const isMounted = useRef(true);
+
+  useEffect(() => {
+    return () => { isMounted.current = false; };
+  }, []);
 
   useEffect(() => {
     fetchItems();
@@ -39,17 +44,19 @@ export default function BrowsePage() {
       setError(null);
       if (category === "cranes") {
         const data = await listCranes("available");
-        setItems(data);
+        if (isMounted.current) setItems(data);
       } else {
         const data = await listTrucks("available");
-        setItems(data);
+        if (isMounted.current) setItems(data);
       }
     } catch (err) {
-      console.error(`Error fetching ${category}:`, err);
-      setError(`Could not load ${category}. Pull down to retry.`);
+      if (__DEV__) console.error(`Error fetching ${category}:`, err);
+      if (isMounted.current) setError(`Could not load ${category}. Pull down to retry.`);
     } finally {
-      setLoading(false);
-      setRefreshing(false);
+      if (isMounted.current) {
+        setLoading(false);
+        setRefreshing(false);
+      }
     }
   };
 
@@ -99,10 +106,148 @@ export default function BrowsePage() {
     ? "Search by name, capacity, or location..."
     : "Search by name, tonnage, or location...";
 
-  return (
-    <View style={{ flex: 1, backgroundColor: "#f8fafc" }}>
-      <StatusBar style="light" />
+  const renderItem = useCallback(({ item }) => (
+    <TouchableOpacity
+      key={item.id}
+      onPress={() => handleItemPress(item)}
+      style={{
+        backgroundColor: "#ffffff",
+        borderRadius: 16,
+        marginBottom: 16,
+        overflow: "hidden",
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
+        elevation: 3,
+      }}
+    >
+      <Image
+        source={{
+          uri:
+            item.images?.[0] ||
+            "https://images.unsplash.com/photo-1590856029826-c7a73142bbf1?w=800",
+        }}
+        style={{ width: "100%", height: width > 600 ? 280 : 200 }}
+        resizeMode="cover"
+      />
 
+      <View style={{ padding: 16 }}>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "flex-start",
+            marginBottom: 8,
+          }}
+        >
+          <View style={{ flex: 1 }}>
+            <Text
+              style={{
+                fontSize: 20,
+                fontWeight: "bold",
+                color: "#1a2332",
+                marginBottom: 4,
+              }}
+            >
+              {item.name}
+            </Text>
+            <View
+              style={{
+                backgroundColor: "#FFB800",
+                paddingHorizontal: 12,
+                paddingVertical: 4,
+                borderRadius: 6,
+                alignSelf: "flex-start",
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: 14,
+                  fontWeight: "bold",
+                  color: "#1a2332",
+                }}
+              >
+                {item.capacity || item.tonnage || "Available"}
+              </Text>
+            </View>
+          </View>
+          <View style={{ alignItems: "flex-end" }}>
+            <View
+              style={{ flexDirection: "row", alignItems: "center" }}
+            >
+              <IndianRupee color="#1a2332" size={18} />
+              <Text
+                style={{
+                  fontSize: 24,
+                  fontWeight: "bold",
+                  color: "#1a2332",
+                }}
+              >
+                {item.price_per_hour}
+              </Text>
+            </View>
+            <Text style={{ fontSize: 12, color: "#64748b" }}>
+              per hour
+            </Text>
+          </View>
+        </View>
+
+        {item.description && (
+          <Text
+            style={{ fontSize: 14, color: "#64748b", marginBottom: 12 }}
+            numberOfLines={2}
+          >
+            {item.description}
+          </Text>
+        )}
+
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            marginBottom: 8,
+          }}
+        >
+          <MapPin color="#64748b" size={16} />
+          <Text
+            style={{ fontSize: 14, color: "#64748b", marginLeft: 6 }}
+          >
+            {item.location || "Location not specified"}
+          </Text>
+        </View>
+
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            backgroundColor: "#dcfce7",
+            paddingHorizontal: 12,
+            paddingVertical: 6,
+            borderRadius: 6,
+            alignSelf: "flex-start",
+          }}
+        >
+          <Clock color="#16a34a" size={14} />
+          <Text
+            style={{
+              fontSize: 12,
+              color: "#16a34a",
+              marginLeft: 6,
+              fontWeight: "600",
+            }}
+          >
+            Available Now
+          </Text>
+        </View>
+      </View>
+    </TouchableOpacity>
+  ), [width, category]);
+
+  const keyExtractor = useCallback((item) => String(item.id), []);
+
+  const ListHeaderComponent = () => (
+    <View>
       {/* Header */}
       <View
         style={{
@@ -110,6 +255,8 @@ export default function BrowsePage() {
           paddingTop: insets.top + 20,
           paddingBottom: 20,
           paddingHorizontal: 20,
+          marginHorizontal: -16,
+          marginTop: -16,
         }}
       >
         <Text
@@ -219,10 +366,67 @@ export default function BrowsePage() {
           />
         </View>
       </View>
+    </View>
+  );
 
-      {/* Items List */}
-      <ScrollView
-        style={{ flex: 1 }}
+  const ListEmptyComponent = () => {
+    if (loading) {
+      return (
+        <View style={{ paddingTop: 40, alignItems: "center" }}>
+          <ActivityIndicator size="large" color="#FFB800" />
+          <Text style={{ marginTop: 12, color: "#64748b" }}>
+            Loading {getItemTitle()}...
+          </Text>
+        </View>
+      );
+    }
+    if (error) {
+      return (
+        <View style={{ paddingTop: 40, alignItems: "center" }}>
+          <Text
+            style={{ fontSize: 18, color: "#dc2626", textAlign: "center", marginBottom: 16 }}
+          >
+            {error}
+          </Text>
+          <TouchableOpacity
+            onPress={() => fetchItems()}
+            style={{
+              backgroundColor: "#FFB800",
+              paddingVertical: 12,
+              paddingHorizontal: 24,
+              borderRadius: 12,
+            }}
+          >
+            <Text style={{ fontSize: 16, fontWeight: "bold", color: "#1a2332" }}>
+              Try Again
+            </Text>
+          </TouchableOpacity>
+        </View>
+      );
+    }
+    return (
+      <View style={{ paddingTop: 40, alignItems: "center" }}>
+        <Text
+          style={{ fontSize: 18, color: "#64748b", textAlign: "center" }}
+        >
+          {searchQuery
+            ? `No ${getItemName()}s found matching your search`
+            : getNoItemsMessage()}
+        </Text>
+      </View>
+    );
+  };
+
+  return (
+    <View style={{ flex: 1, backgroundColor: "#f8fafc" }}>
+      <StatusBar style="light" />
+
+      <FlatList
+        data={loading || error ? [] : filteredItems}
+        renderItem={renderItem}
+        keyExtractor={keyExtractor}
+        ListHeaderComponent={ListHeaderComponent}
+        ListEmptyComponent={ListEmptyComponent}
         contentContainerStyle={{
           padding: 16,
           paddingBottom: insets.bottom + 80,
@@ -236,185 +440,7 @@ export default function BrowsePage() {
             colors={["#FFB800"]}
           />
         }
-      >
-        {loading ? (
-          <View style={{ paddingTop: 40, alignItems: "center" }}>
-            <ActivityIndicator size="large" color="#FFB800" />
-            <Text style={{ marginTop: 12, color: "#64748b" }}>
-              Loading {getItemTitle()}...
-            </Text>
-          </View>
-        ) : error ? (
-          <View style={{ paddingTop: 40, alignItems: "center" }}>
-            <Text
-              style={{ fontSize: 18, color: "#dc2626", textAlign: "center", marginBottom: 16 }}
-            >
-              {error}
-            </Text>
-            <TouchableOpacity
-              onPress={() => fetchItems()}
-              style={{
-                backgroundColor: "#FFB800",
-                paddingVertical: 12,
-                paddingHorizontal: 24,
-                borderRadius: 12,
-              }}
-            >
-              <Text style={{ fontSize: 16, fontWeight: "bold", color: "#1a2332" }}>
-                Try Again
-              </Text>
-            </TouchableOpacity>
-          </View>
-        ) : filteredItems.length === 0 ? (
-          <View style={{ paddingTop: 40, alignItems: "center" }}>
-            <Text
-              style={{ fontSize: 18, color: "#64748b", textAlign: "center" }}
-            >
-              {searchQuery
-                ? `No ${getItemName()}s found matching your search`
-                : getNoItemsMessage()}
-            </Text>
-          </View>
-        ) : (
-          filteredItems.map((item) => (
-            <TouchableOpacity
-              key={item.id}
-              onPress={() => handleItemPress(item)}
-              style={{
-                backgroundColor: "#ffffff",
-                borderRadius: 16,
-                marginBottom: 16,
-                overflow: "hidden",
-                shadowColor: "#000",
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.1,
-                shadowRadius: 8,
-                elevation: 3,
-              }}
-            >
-              <Image
-                source={{
-                  uri:
-                    item.images?.[0] ||
-                    "https://images.unsplash.com/photo-1590856029826-c7a73142bbf1?w=800",
-                }}
-                style={{ width: "100%", height: width > 600 ? 280 : 200 }}
-                resizeMode="cover"
-              />
-
-              <View style={{ padding: 16 }}>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    justifyContent: "space-between",
-                    alignItems: "flex-start",
-                    marginBottom: 8,
-                  }}
-                >
-                  <View style={{ flex: 1 }}>
-                    <Text
-                      style={{
-                        fontSize: 20,
-                        fontWeight: "bold",
-                        color: "#1a2332",
-                        marginBottom: 4,
-                      }}
-                    >
-                      {item.name}
-                    </Text>
-                    <View
-                      style={{
-                        backgroundColor: "#FFB800",
-                        paddingHorizontal: 12,
-                        paddingVertical: 4,
-                        borderRadius: 6,
-                        alignSelf: "flex-start",
-                      }}
-                    >
-                      <Text
-                        style={{
-                          fontSize: 14,
-                          fontWeight: "bold",
-                          color: "#1a2332",
-                        }}
-                      >
-                        {item.capacity || item.tonnage || "Available"}
-                      </Text>
-                    </View>
-                  </View>
-                  <View style={{ alignItems: "flex-end" }}>
-                    <View
-                      style={{ flexDirection: "row", alignItems: "center" }}
-                    >
-                      <IndianRupee color="#1a2332" size={18} />
-                      <Text
-                        style={{
-                          fontSize: 24,
-                          fontWeight: "bold",
-                          color: "#1a2332",
-                        }}
-                      >
-                        {item.price_per_hour}
-                      </Text>
-                    </View>
-                    <Text style={{ fontSize: 12, color: "#64748b" }}>
-                      per hour
-                    </Text>
-                  </View>
-                </View>
-
-                {item.description && (
-                  <Text
-                    style={{ fontSize: 14, color: "#64748b", marginBottom: 12 }}
-                    numberOfLines={2}
-                  >
-                    {item.description}
-                  </Text>
-                )}
-
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    marginBottom: 8,
-                  }}
-                >
-                  <MapPin color="#64748b" size={16} />
-                  <Text
-                    style={{ fontSize: 14, color: "#64748b", marginLeft: 6 }}
-                  >
-                    {item.location || "Location not specified"}
-                  </Text>
-                </View>
-
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    backgroundColor: "#dcfce7",
-                    paddingHorizontal: 12,
-                    paddingVertical: 6,
-                    borderRadius: 6,
-                    alignSelf: "flex-start",
-                  }}
-                >
-                  <Clock color="#16a34a" size={14} />
-                  <Text
-                    style={{
-                      fontSize: 12,
-                      color: "#16a34a",
-                      marginLeft: 6,
-                      fontWeight: "600",
-                    }}
-                  >
-                    Available Now
-                  </Text>
-                </View>
-              </View>
-            </TouchableOpacity>
-          ))
-        )}
-      </ScrollView>
+      />
 
       {/* Floating WhatsApp Button */}
       <TouchableOpacity

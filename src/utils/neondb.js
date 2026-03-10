@@ -4,9 +4,11 @@
  */
 import { neon } from '@neondatabase/serverless';
 
-const DATABASE_URL =
-  process.env.EXPO_PUBLIC_NEONDB_URL ||
-  'postgresql://neondb_owner:npg_Uge6l5kyvjWc@ep-bold-thunder-a4yhhuxl-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require';
+const DATABASE_URL = process.env.EXPO_PUBLIC_NEONDB_URL;
+
+if (!DATABASE_URL) {
+  throw new Error('EXPO_PUBLIC_NEONDB_URL environment variable is not set');
+}
 
 /**
  * Neon SQL tagged-template client.

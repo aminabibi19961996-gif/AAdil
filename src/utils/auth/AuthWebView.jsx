@@ -45,7 +45,7 @@ export const AuthWebView = ({ mode, proxyURL, baseURL }) => {
           user: event.data.user,
         });
       } else if (event.data.type === 'AUTH_ERROR') {
-        console.error('Auth error:', event.data.error);
+        if (__DEV__) console.error('Auth error:', event.data.error);
       }
     };
 
@@ -58,7 +58,7 @@ export const AuthWebView = ({ mode, proxyURL, baseURL }) => {
 
   if (Platform.OS === 'web') {
     const handleIframeError = () => {
-      console.error('Failed to load auth iframe');
+      if (__DEV__) console.error('Failed to load auth iframe');
     };
 
     return (

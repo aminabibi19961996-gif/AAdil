@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import {
   View,
   Text,
-  ScrollView,
+  FlatList,
   TouchableOpacity,
   TextInput,
   ActivityIndicator,
@@ -25,6 +25,11 @@ export default function MyBookings() {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [searchPerformed, setSearchPerformed] = useState(false);
   const [error, setError] = useState(null);
+  const isMounted = useRef(true);
+
+  useEffect(() => {
+    return () => { isMounted.current = false; };
+  }, []);
 
   const fetchBookings = async () => {
     if (!phoneNumber) return;
@@ -34,12 +39,12 @@ export default function MyBookings() {
     setError(null);
     try {
       const data = await listBookingsByPhone(phoneNumber);
-      setBookings(data);
+      if (isMounted.current) setBookings(data);
     } catch (err) {
-      console.error("Error fetching bookings:", err);
-      setError("Could not load bookings. Please try again.");
+      if (__DEV__) console.error("Error fetching bookings:", err);
+      if (isMounted.current) setError("Could not load bookings. Please try again.");
     } finally {
-      setLoading(false);
+      if (isMounted.current) setLoading(false);
     }
   };
 
@@ -60,10 +65,152 @@ export default function MyBookings() {
     }
   };
 
-  return (
-    <View style={{ flex: 1, backgroundColor: "#f8fafc" }}>
-      <StatusBar style="light" />
+  const renderBookingItem = useCallback(({ item: booking }) => {
+    const statusColors = getStatusColor(booking.status);
+    return (
+      <View
+        style={{
+          backgroundColor: "#ffffff",
+          borderRadius: 16,
+          padding: 16,
+          marginBottom: 16,
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.1,
+          shadowRadius: 8,
+          elevation: 3,
+        }}
+      >
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "flex-start",
+            marginBottom: 12,
+          }}
+        >
+          <View style={{ flex: 1 }}>
+            <Text
+              style={{
+                fontSize: 12,
+                color: "#64748b",
+                marginBottom: 4,
+              }}
+            >
+              Booking ID
+            </Text>
+            <Text
+              style={{
+                fontSize: 16,
+                fontWeight: "bold",
+                color: "#1a2332",
+              }}
+            >
+              {booking.booking_id}
+            </Text>
+          </View>
+          <View
+            style={{
+              backgroundColor: statusColors.bg,
+              paddingHorizontal: 12,
+              paddingVertical: 6,
+              borderRadius: 8,
+            }}
+          >
+            <Text
+              style={{
+                fontSize: 12,
+                fontWeight: "bold",
+                color: statusColors.text,
+                textTransform: "uppercase",
+              }}
+            >
+              {booking.status}
+            </Text>
+          </View>
+        </View>
 
+        <View
+          style={{
+            backgroundColor: "#f8fafc",
+            padding: 12,
+            borderRadius: 12,
+            marginBottom: 12,
+          }}
+        >
+          <Text
+            style={{
+              fontSize: 18,
+              fontWeight: "bold",
+              color: "#1a2332",
+              marginBottom: 4,
+            }}
+          >
+            {booking.crane_name || booking.truck_name}
+          </Text>
+          <Text style={{ fontSize: 14, color: "#64748b" }}>
+            {booking.crane_capacity || ""}
+          </Text>
+        </View>
+
+        <View style={{ gap: 8 }}>
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <Calendar color="#64748b" size={16} />
+            <Text
+              style={{ fontSize: 14, color: "#64748b", marginLeft: 8 }}
+            >
+              {new Date(booking.booking_date).toLocaleDateString(
+                "en-IN",
+                {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                },
+              )}
+            </Text>
+          </View>
+
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <Clock color="#64748b" size={16} />
+            <Text
+              style={{ fontSize: 14, color: "#64748b", marginLeft: 8 }}
+            >
+              {booking.start_time} • {String(booking.duration)} hours
+            </Text>
+          </View>
+
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <MapPin color="#64748b" size={16} />
+            <Text
+              style={{ fontSize: 14, color: "#64748b", marginLeft: 8 }}
+              numberOfLines={1}
+            >
+              {booking.site_location}
+            </Text>
+          </View>
+
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <IndianRupee color="#1a2332" size={16} />
+            <Text
+              style={{
+                fontSize: 18,
+                fontWeight: "bold",
+                color: "#1a2332",
+                marginLeft: 8,
+              }}
+            >
+              {String(booking.total_price)}
+            </Text>
+          </View>
+        </View>
+      </View>
+    );
+  }, []);
+
+  const keyExtractor = useCallback((item) => String(item.id), []);
+
+  const ListHeaderComponent = () => (
+    <View>
       {/* Header */}
       <View
         style={{
@@ -71,6 +218,8 @@ export default function MyBookings() {
           paddingTop: insets.top + 20,
           paddingBottom: 20,
           paddingHorizontal: 20,
+          marginHorizontal: -16,
+          marginTop: -16,
         }}
       >
         <Text
@@ -138,222 +287,99 @@ export default function MyBookings() {
           </View>
         </View>
       </View>
+    </View>
+  );
 
-      {/* Bookings List */}
-      <ScrollView
-        style={{ flex: 1 }}
+  const ListEmptyComponent = () => {
+    if (loading) {
+      return (
+        <View style={{ paddingTop: 40, alignItems: "center" }}>
+          <ActivityIndicator size="large" color="#FFB800" />
+          <Text style={{ marginTop: 12, color: "#64748b" }}>
+            Loading bookings...
+          </Text>
+        </View>
+      );
+    }
+    if (!searchPerformed) {
+      return (
+        <View style={{ paddingTop: 40, alignItems: "center" }}>
+          <Calendar color="#cbd5e1" size={64} />
+          <Text
+            style={{
+              fontSize: 18,
+              color: "#64748b",
+              textAlign: "center",
+              marginTop: 16,
+            }}
+          >
+            Enter your phone number to view your bookings
+          </Text>
+        </View>
+      );
+    }
+    if (error) {
+      return (
+        <View style={{ paddingTop: 40, alignItems: "center" }}>
+          <Text
+            style={{
+              fontSize: 18,
+              color: "#dc2626",
+              textAlign: "center",
+              marginBottom: 16,
+            }}
+          >
+            {error}
+          </Text>
+          <TouchableOpacity
+            onPress={fetchBookings}
+            style={{
+              backgroundColor: "#FFB800",
+              paddingVertical: 12,
+              paddingHorizontal: 24,
+              borderRadius: 12,
+            }}
+          >
+            <Text style={{ fontSize: 16, fontWeight: "bold", color: "#1a2332" }}>
+              Retry
+            </Text>
+          </TouchableOpacity>
+        </View>
+      );
+    }
+    return (
+      <View style={{ paddingTop: 40, alignItems: "center" }}>
+        <Calendar color="#cbd5e1" size={64} />
+        <Text
+          style={{
+            fontSize: 18,
+            color: "#64748b",
+            textAlign: "center",
+            marginTop: 16,
+          }}
+        >
+          No bookings found for this phone number
+        </Text>
+      </View>
+    );
+  };
+
+  return (
+    <View style={{ flex: 1, backgroundColor: "#f8fafc" }}>
+      <StatusBar style="light" />
+
+      <FlatList
+        data={loading || error || !searchPerformed ? [] : bookings}
+        renderItem={renderBookingItem}
+        keyExtractor={keyExtractor}
+        ListHeaderComponent={ListHeaderComponent}
+        ListEmptyComponent={ListEmptyComponent}
         contentContainerStyle={{
           padding: 16,
           paddingBottom: insets.bottom + 80,
         }}
         showsVerticalScrollIndicator={false}
-      >
-        {loading ? (
-          <View style={{ paddingTop: 40, alignItems: "center" }}>
-            <ActivityIndicator size="large" color="#FFB800" />
-            <Text style={{ marginTop: 12, color: "#64748b" }}>
-              Loading bookings...
-            </Text>
-          </View>
-        ) : !searchPerformed ? (
-          <View style={{ paddingTop: 40, alignItems: "center" }}>
-            <Calendar color="#cbd5e1" size={64} />
-            <Text
-              style={{
-                fontSize: 18,
-                color: "#64748b",
-                textAlign: "center",
-                marginTop: 16,
-              }}
-            >
-              Enter your phone number to view your bookings
-            </Text>
-          </View>
-        ) : error ? (
-          <View style={{ paddingTop: 40, alignItems: "center" }}>
-            <Text
-              style={{
-                fontSize: 18,
-                color: "#dc2626",
-                textAlign: "center",
-                marginBottom: 16,
-              }}
-            >
-              {error}
-            </Text>
-            <TouchableOpacity
-              onPress={fetchBookings}
-              style={{
-                backgroundColor: "#FFB800",
-                paddingVertical: 12,
-                paddingHorizontal: 24,
-                borderRadius: 12,
-              }}
-            >
-              <Text style={{ fontSize: 16, fontWeight: "bold", color: "#1a2332" }}>
-                Retry
-              </Text>
-            </TouchableOpacity>
-          </View>
-        ) : bookings.length === 0 ? (
-          <View style={{ paddingTop: 40, alignItems: "center" }}>
-            <Calendar color="#cbd5e1" size={64} />
-            <Text
-              style={{
-                fontSize: 18,
-                color: "#64748b",
-                textAlign: "center",
-                marginTop: 16,
-              }}
-            >
-              No bookings found for this phone number
-            </Text>
-          </View>
-        ) : (
-          bookings.map((booking) => {
-            const statusColors = getStatusColor(booking.status);
-            return (
-              <View
-                key={booking.id}
-                style={{
-                  backgroundColor: "#ffffff",
-                  borderRadius: 16,
-                  padding: 16,
-                  marginBottom: 16,
-                  shadowColor: "#000",
-                  shadowOffset: { width: 0, height: 2 },
-                  shadowOpacity: 0.1,
-                  shadowRadius: 8,
-                  elevation: 3,
-                }}
-              >
-                <View
-                  style={{
-                    flexDirection: "row",
-                    justifyContent: "space-between",
-                    alignItems: "flex-start",
-                    marginBottom: 12,
-                  }}
-                >
-                  <View style={{ flex: 1 }}>
-                    <Text
-                      style={{
-                        fontSize: 12,
-                        color: "#64748b",
-                        marginBottom: 4,
-                      }}
-                    >
-                      Booking ID
-                    </Text>
-                    <Text
-                      style={{
-                        fontSize: 16,
-                        fontWeight: "bold",
-                        color: "#1a2332",
-                      }}
-                    >
-                      {booking.booking_id}
-                    </Text>
-                  </View>
-                  <View
-                    style={{
-                      backgroundColor: statusColors.bg,
-                      paddingHorizontal: 12,
-                      paddingVertical: 6,
-                      borderRadius: 8,
-                    }}
-                  >
-                    <Text
-                      style={{
-                        fontSize: 12,
-                        fontWeight: "bold",
-                        color: statusColors.text,
-                        textTransform: "uppercase",
-                      }}
-                    >
-                      {booking.status}
-                    </Text>
-                  </View>
-                </View>
-
-                <View
-                  style={{
-                    backgroundColor: "#f8fafc",
-                    padding: 12,
-                    borderRadius: 12,
-                    marginBottom: 12,
-                  }}
-                >
-                  <Text
-                    style={{
-                      fontSize: 18,
-                      fontWeight: "bold",
-                      color: "#1a2332",
-                      marginBottom: 4,
-                    }}
-                  >
-                    {booking.crane_name}
-                  </Text>
-                  <Text style={{ fontSize: 14, color: "#64748b" }}>
-                    {booking.crane_capacity}
-                  </Text>
-                </View>
-
-                <View style={{ gap: 8 }}>
-                  <View style={{ flexDirection: "row", alignItems: "center" }}>
-                    <Calendar color="#64748b" size={16} />
-                    <Text
-                      style={{ fontSize: 14, color: "#64748b", marginLeft: 8 }}
-                    >
-                      {new Date(booking.booking_date).toLocaleDateString(
-                        "en-IN",
-                        {
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                        },
-                      )}
-                    </Text>
-                  </View>
-
-                  <View style={{ flexDirection: "row", alignItems: "center" }}>
-                    <Clock color="#64748b" size={16} />
-                    <Text
-                      style={{ fontSize: 14, color: "#64748b", marginLeft: 8 }}
-                    >
-                      {booking.start_time} • {booking.duration} hours
-                    </Text>
-                  </View>
-
-                  <View style={{ flexDirection: "row", alignItems: "center" }}>
-                    <MapPin color="#64748b" size={16} />
-                    <Text
-                      style={{ fontSize: 14, color: "#64748b", marginLeft: 8 }}
-                      numberOfLines={1}
-                    >
-                      {booking.site_location}
-                    </Text>
-                  </View>
-
-                  <View style={{ flexDirection: "row", alignItems: "center" }}>
-                    <IndianRupee color="#1a2332" size={16} />
-                    <Text
-                      style={{
-                        fontSize: 18,
-                        fontWeight: "bold",
-                        color: "#1a2332",
-                        marginLeft: 8,
-                      }}
-                    >
-                      {booking.total_price}
-                    </Text>
-                  </View>
-                </View>
-              </View>
-            );
-          })
-        )}
-      </ScrollView>
+      />
     </View>
   );
 }

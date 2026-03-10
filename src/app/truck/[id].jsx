@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -23,6 +23,11 @@ export default function TruckDetails() {
   const [truck, setTruck] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const isMounted = useRef(true);
+
+  useEffect(() => {
+    return () => { isMounted.current = false; };
+  }, []);
 
   useEffect(() => {
     fetchTruckDetails();
@@ -32,12 +37,12 @@ export default function TruckDetails() {
     try {
       setError(null);
       const data = await getTruck(id);
-      setTruck(data);
+      if (isMounted.current) setTruck(data);
     } catch (err) {
-      console.error("Error fetching truck details:", err);
-      setError("Could not load truck details.");
+      if (__DEV__) console.error("Error fetching truck details:", err);
+      if (isMounted.current) setError("Could not load truck details.");
     } finally {
-      setLoading(false);
+      if (isMounted.current) setLoading(false);
     }
   };
 

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -46,19 +46,21 @@ export default function ManageTrucks() {
     images: [],
   });
   const [imageUrl, setImageUrl] = useState("");
+  const isMounted = useRef(true);
 
   useEffect(() => {
     fetchTrucks();
+    return () => { isMounted.current = false; };
   }, []);
 
   const fetchTrucks = async () => {
     try {
       const data = await listTrucks();
-      setTrucks(data);
+      if (isMounted.current) setTrucks(data);
     } catch (error) {
-      console.error("Error fetching trucks:", error);
+      if (__DEV__) console.error("Error fetching trucks:", error);
     } finally {
-      setLoading(false);
+      if (isMounted.current) setLoading(false);
     }
   };
 
@@ -117,7 +119,7 @@ export default function ManageTrucks() {
       });
       fetchTrucks();
     } catch (error) {
-      console.error("Error creating truck:", error);
+      if (__DEV__) console.error("Error creating truck:", error);
       Alert.alert("Error", error.message || "Failed to add truck");
     }
   };
@@ -134,7 +136,7 @@ export default function ManageTrucks() {
             Alert.alert("Success", "Truck deleted successfully");
             fetchTrucks();
           } catch (error) {
-            console.error("Error deleting truck:", error);
+            if (__DEV__) console.error("Error deleting truck:", error);
             Alert.alert("Error", error.message || "Failed to delete truck");
           }
         },
@@ -147,7 +149,7 @@ export default function ManageTrucks() {
       await toggleTruckAvailability(id, currentStatus);
       fetchTrucks();
     } catch (error) {
-      console.error("Error toggling availability:", error);
+      if (__DEV__) console.error("Error toggling availability:", error);
       Alert.alert("Error", error.message || "Failed to update status");
     }
   };

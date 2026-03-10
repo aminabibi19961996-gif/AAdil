@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -46,19 +46,21 @@ export default function ManageCranes() {
     images: [],
   });
   const [imageUrl, setImageUrl] = useState("");
+  const isMounted = useRef(true);
 
   useEffect(() => {
     fetchCranes();
+    return () => { isMounted.current = false; };
   }, []);
 
   const fetchCranes = async () => {
     try {
       const data = await listCranes();
-      setCranes(data);
+      if (isMounted.current) setCranes(data);
     } catch (error) {
-      console.error("Error fetching cranes:", error);
+      if (__DEV__) console.error("Error fetching cranes:", error);
     } finally {
-      setLoading(false);
+      if (isMounted.current) setLoading(false);
     }
   };
 
@@ -118,7 +120,7 @@ export default function ManageCranes() {
       });
       fetchCranes();
     } catch (error) {
-      console.error("Error creating crane:", error);
+      if (__DEV__) console.error("Error creating crane:", error);
       Alert.alert("Error", error.message || "Failed to add crane");
     }
   };
@@ -135,7 +137,7 @@ export default function ManageCranes() {
             Alert.alert("Success", "Crane deleted successfully");
             fetchCranes();
           } catch (error) {
-            console.error("Error deleting crane:", error);
+            if (__DEV__) console.error("Error deleting crane:", error);
             Alert.alert("Error", error.message || "Failed to delete crane");
           }
         },
@@ -148,7 +150,7 @@ export default function ManageCranes() {
       await toggleCraneAvailability(id, currentStatus);
       fetchCranes();
     } catch (error) {
-      console.error("Error toggling availability:", error);
+      if (__DEV__) console.error("Error toggling availability:", error);
       Alert.alert("Error", error.message || "Failed to update status");
     }
   };

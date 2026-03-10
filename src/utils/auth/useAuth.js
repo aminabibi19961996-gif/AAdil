@@ -18,12 +18,16 @@ export const useAuth = () => {
 
   const initiate = useCallback(() => {
     SecureStore.getItemAsync(authKey).then((auth) => {
+      let parsed = null;
+      if (auth) {
+        try { parsed = JSON.parse(auth); } catch { parsed = null; }
+      }
       useAuthStore.setState({
-        auth: auth ? JSON.parse(auth) : null,
+        auth: parsed,
         isReady: true,
       });
     }).catch((err) => {
-      console.error("Failed to load auth from SecureStore", err);
+      if (__DEV__) console.error("Failed to load auth from SecureStore", err);
       useAuthStore.setState({ isReady: true });
     });
   }, []);

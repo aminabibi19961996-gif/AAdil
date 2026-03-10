@@ -103,7 +103,7 @@ function NotFoundScreen() {
         router.push(url as RelativePathString);
       }
     } catch (error) {
-      console.error('Navigation error:', error);
+      if (__DEV__) console.error('Navigation error:', error);
     }
   };
 

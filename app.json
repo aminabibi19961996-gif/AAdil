@@ -7,25 +7,14 @@
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "userInterfaceStyle": "automatic",
-    "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.mohammadsaiyed.cranewalah",
-      "buildNumber": "1",
-      "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false,
-        "NSSpeechRecognitionUsageDescription": "Allow $(PRODUCT_NAME) to use speech recognition.",
-        "NSMicrophoneUsageDescription": "Allow $(PRODUCT_NAME) to use the microphone.",
-        "NSPhotoLibraryUsageDescription": "Allow $(PRODUCT_NAME) to access your photos for crane and truck uploads."
-      }
-    },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
       "permissions": [
-        "android.permission.RECORD_AUDIO",
-        "android.permission.MODIFY_AUDIO_SETTINGS"
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION"
       ],
       "versionCode": 1,
       "package": "com.mohammadsaiyed.cranewalah"
@@ -49,13 +38,11 @@
       [
         "expo-build-properties",
         {
-          "ios": {
-            "useFrameworks": "static",
-            "deploymentTarget": "15.1"
-          },
           "android": {
             "kotlinVersion": "2.1.21",
-            "minSdkVersion": 24
+            "minSdkVersion": 26,
+            "targetSdkVersion": 35,
+            "compileSdkVersion": 35
           }
         }
       ],
@@ -87,9 +74,9 @@
         "sitemap": false
       },
       "eas": {
-        "projectId": "6f454bf4-4834-4673-aa73-9aacaa5ba841"
+        "projectId": "8ee03598-6983-4194-abca-2c57896fb0a5"
       }
     },
-    "owner": "mdq1996s-organization"
+    "owner": "alfredhidini"
   }
 }

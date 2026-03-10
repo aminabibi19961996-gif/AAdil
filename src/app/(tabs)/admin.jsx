@@ -56,7 +56,7 @@ export default function AdminLogin() {
         },
       ]);
     } catch (error) {
-      console.error("Error during login:", error);
+      if (__DEV__) console.error("Error during login:", error);
       if (error.message?.includes("Invalid login")) {
         Alert.alert("Login Failed", "Invalid email or password");
       } else {

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -26,9 +26,11 @@ export default function ManageVehicles() {
     vehicle_type: "",
     capacity: "",
   });
+  const isMounted = useRef(true);
 
   useEffect(() => {
     fetchVehicles();
+    return () => { isMounted.current = false; };
   }, []);
 
   const fetchVehicles = async () => {
@@ -38,11 +40,11 @@ export default function ManageVehicles() {
         .select('*')
         .order('created_at', { ascending: false });
       if (error) throw error;
-      setVehicles(data || []);
+      if (isMounted.current) setVehicles(data || []);
     } catch (error) {
-      console.error("Error fetching vehicles:", error);
+      if (__DEV__) console.error("Error fetching vehicles:", error);
     } finally {
-      setLoading(false);
+      if (isMounted.current) setLoading(false);
     }
   };
 
@@ -70,7 +72,7 @@ export default function ManageVehicles() {
       setFormData({ name: "", vehicle_type: "", capacity: "" });
       fetchVehicles();
     } catch (error) {
-      console.error("Error creating vehicle:", error);
+      if (__DEV__) console.error("Error creating vehicle:", error);
       Alert.alert("Error", error.message || "Failed to add vehicle");
     }
   };

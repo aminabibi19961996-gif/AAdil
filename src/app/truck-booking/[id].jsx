@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -34,6 +34,7 @@ export default function TruckBookingForm() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [loadError, setLoadError] = useState(null);
+  const isMounted = useRef(true);
 
   const [formData, setFormData] = useState({
     user_name: "",
@@ -52,6 +53,10 @@ export default function TruckBookingForm() {
   const [showTimePicker, setShowTimePicker] = useState(false);
 
   useEffect(() => {
+    return () => { isMounted.current = false; };
+  }, []);
+
+  useEffect(() => {
     fetchTruckDetails();
   }, [id]);
 
@@ -59,12 +64,12 @@ export default function TruckBookingForm() {
     try {
       setLoadError(null);
       const data = await getTruck(id);
-      setTruck(data);
+      if (isMounted.current) setTruck(data);
     } catch (err) {
-      console.error("Error fetching truck details:", err);
-      setLoadError("Could not load truck details.");
+      if (__DEV__) console.error("Error fetching truck details:", err);
+      if (isMounted.current) setLoadError("Could not load truck details.");
     } finally {
-      setLoading(false);
+      if (isMounted.current) setLoading(false);
     }
   };
 
@@ -120,7 +125,7 @@ export default function TruckBookingForm() {
         ],
       );
     } catch (error) {
-      console.error("Error creating booking:", error);
+      if (__DEV__) console.error("Error creating booking:", error);
       Alert.alert("Booking Failed", error.message || "Something went wrong");
     } finally {
       setSubmitting(false);

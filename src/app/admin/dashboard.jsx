@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
   View,
   Text,
@@ -30,9 +30,11 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(null);
+  const isMounted = useRef(true);
 
   useEffect(() => {
     fetchAnalytics();
+    return () => { isMounted.current = false; };
   }, []);
 
   const fetchAnalytics = async (isRefresh = false) => {
@@ -40,13 +42,15 @@ export default function AdminDashboard() {
       if (isRefresh) setRefreshing(true);
       setError(null);
       const data = await getAdminAnalytics();
-      setAnalytics(data);
+      if (isMounted.current) setAnalytics(data);
     } catch (err) {
-      console.error("Error fetching analytics:", err);
-      setError("Could not load analytics. Pull down to retry.");
+      if (__DEV__) console.error("Error fetching analytics:", err);
+      if (isMounted.current) setError("Could not load analytics. Pull down to retry.");
     } finally {
-      setLoading(false);
-      setRefreshing(false);
+      if (isMounted.current) {
+        setLoading(false);
+        setRefreshing(false);
+      }
     }
   };
 
@@ -60,7 +64,7 @@ export default function AdminDashboard() {
       Alert.alert("Success", `Booking ${status} successfully`);
       fetchAnalytics(); // Refresh data
     } catch (error) {
-      console.error("Error updating booking:", error);
+      if (__DEV__) console.error("Error updating booking:", error);
       Alert.alert("Error", error.message || "Failed to update booking");
     }
   };

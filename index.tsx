@@ -21,15 +21,16 @@ import App from './entrypoint'
 if (__DEV__ || process.env.EXPO_PUBLIC_CREATE_ENV === 'DEVELOPMENT') {
   LogBox.ignoreAllLogs();
   LogBox.uninstall();
-  AppRegistry.setWrapperComponentProvider(() => ({ children }) => {
-    return (
-      <>
-        <DeviceErrorBoundaryWrapper>
-          {children}
-        </DeviceErrorBoundaryWrapper>
-        <AnythingMenu />
-      </>
-    );
-  });
 }
+
+// Error boundary must wrap in ALL environments (including production)
+// so crashes show a recovery screen instead of a permanent white screen.
+AppRegistry.setWrapperComponentProvider(() => ({ children }) => {
+  return (
+    <DeviceErrorBoundaryWrapper>
+      {children}
+    </DeviceErrorBoundaryWrapper>
+  );
+});
+
 renderRootComponent(App);
