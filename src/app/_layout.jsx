@@ -1,7 +1,7 @@
 import { Stack } from 'expo-router';
 import { useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -43,7 +43,6 @@ export default function RootLayout() {
   const [isReady, setIsReady] = useState(false);
   const router = useRouter();
   const segments = useSegments();
-  const hasNavigated = useRef(false);
 
   // 1. Load session + listen for auth changes
   useEffect(() => {
@@ -61,7 +60,12 @@ export default function RootLayout() {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, newSession) => {
-      if (__DEV__) console.log('[AUTH]', _event, !!newSession);
+      if (__DEV__) {
+        console.log('[AUTH] Event:', _event, '| hasSession:', !!newSession);
+        if (newSession) {
+          console.log('[AUTH] User:', newSession.user?.email, '| Provider:', newSession.user?.app_metadata?.provider);
+        }
+      }
       setSession(newSession ?? null);
     });
 
@@ -80,13 +84,21 @@ export default function RootLayout() {
     if (!isReady || session === undefined) return;
 
     const inAuthGroup = segments[0] === 'login';
+    const isRootIndex = segments.length === 0 || segments[0] === 'index';
 
-    if (session && inAuthGroup) {
-      // User just logged in — send them to the main app
+    if (__DEV__) {
+      console.log('[NAV] Evaluating route — segments:', JSON.stringify(segments),
+        '| hasSession:', !!session, '| inAuthGroup:', inAuthGroup, '| isRootIndex:', isRootIndex);
+    }
+
+    if (session && (inAuthGroup || isRootIndex)) {
+      if (__DEV__) console.log('[NAV] → Redirecting to /(tabs)');
       router.replace('/(tabs)');
     } else if (!session && !inAuthGroup) {
-      // User logged out or no session — send to login
+      if (__DEV__) console.log('[NAV] → Redirecting to /login');
       router.replace('/login');
+    } else {
+      if (__DEV__) console.log('[NAV] → Already in correct place, no redirect needed');
     }
   }, [session, isReady, segments]);
 
@@ -97,16 +109,14 @@ export default function RootLayout() {
     <QueryClientProvider client={queryClient}>
       <GestureHandlerRootView style={{ flex: 1 }}>
         <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="index" />
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="login" />
           <Stack.Screen name="crane/[id]" />
           <Stack.Screen name="truck/[id]" />
           <Stack.Screen name="booking/[id]" />
           <Stack.Screen name="truck-booking/[id]" />
-          <Stack.Screen name="admin/dashboard" />
-          <Stack.Screen name="admin/cranes" />
-          <Stack.Screen name="admin/trucks" />
-          <Stack.Screen name="admin/vehicles" />
+          <Stack.Screen name="admin" />
         </Stack>
       </GestureHandlerRootView>
     </QueryClientProvider>

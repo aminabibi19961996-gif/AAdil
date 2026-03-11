@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "1383521484",
+    "project_id": "cranewalah",
+    "storage_bucket": "cranewalah.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1383521484:android:c53c0e1dd41eb2d485b669",
+        "android_client_info": {
+          "package_name": "com.mohammadsaiyed.cranewalah"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1383521484-6gp6sona4d87v4feb2rlgqb1qmbiotgv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.mohammadsaiyed.cranewalah",
+            "certificate_hash": "a31257d620556d3732dbce2ac53822bc3a97cd4d"
+          }
+        },
+        {
+          "client_id": "1383521484-h7sop3125i6mvcob16p7ht8ph7c00k90.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCgBUHIU4x-h9q_GsQRNBsNqvvyUbjpkwU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1383521484-h7sop3125i6mvcob16p7ht8ph7c00k90.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -20,7 +20,6 @@ import {
 import { supabase } from "../../utils/supabase";
 import { useTranslation, useLanguageStore } from "../../utils/language";
 import { LogOut } from "lucide-react-native";
-import { useAuthStore } from "../../utils/auth/store";
 import { useQueryClient } from "@tanstack/react-query";
 
 export default function Profile() {
@@ -44,8 +43,6 @@ export default function Profile() {
     try {
       // Clear React Query cache
       queryClient.clear();
-      // Clear Zustand auth store
-      useAuthStore.getState().setAuth(null);
       // Sign out from Supabase (triggers onAuthStateChange -> redirect to login)
       const { error } = await supabase.auth.signOut();
       if (error) {

@@ -14,6 +14,7 @@ import { StatusBar } from "expo-status-bar";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { ArrowLeft, MapPin, IndianRupee, Calendar, Truck } from "lucide-react-native";
 import { getTruck } from "../../utils/dataService";
+import OSMMapView from "../../components/OSMMapView";
 
 export default function TruckDetails() {
   const insets = useSafeAreaInsets();
@@ -172,7 +173,7 @@ export default function TruckDetails() {
             style={{
               flexDirection: "row",
               alignItems: "center",
-              marginBottom: 16,
+              marginBottom: 12,
             }}
           >
             <MapPin color="#64748b" size={18} />
@@ -180,6 +181,14 @@ export default function TruckDetails() {
               {truck.location || "Location not specified"}
             </Text>
           </View>
+
+          {truck.location && (
+            <OSMMapView
+              location={truck.location}
+              height={180}
+              style={{ marginBottom: 20 }}
+            />
+          )}
 
           {/* Price */}
           <View

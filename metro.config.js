@@ -21,7 +21,6 @@ const WEB_ALIASES = {
     __dirname,
     './polyfills/web/safeAreaContext.web.jsx'
   ),
-  'react-native-maps': path.resolve(__dirname, './polyfills/web/maps.web.jsx'),
   'react-native-web/dist/exports/SafeAreaView': path.resolve(
     __dirname,
     './polyfills/web/SafeAreaView.web.jsx'

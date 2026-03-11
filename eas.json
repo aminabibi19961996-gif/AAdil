@@ -13,43 +13,41 @@
 		"development": {
 			"extends": "base",
 			"developmentClient": true,
-			"distribution": "internal"
-		},
-		"preview": {
-			"extends": "base",
-			"distribution": "internal"
-		},
-		"preview-apk": {
-			"extends": "base",
-			"distribution": "internal",
-			"android": {
-				"buildType": "apk"
-			}
-		},
-		"production": {
-			"extends": "base",
-			"autoIncrement": true,
-			"android": {
-				"buildType": "apk"
-			},
 			"env": {
 				"EXPO_PUBLIC_APP_URL": "https://e9a73bc2-3956-479d-b60d-d23d0db78403.created.app",
 				"EXPO_PUBLIC_BASE_CREATE_USER_CONTENT_URL": "https://raw.createusercontent.com",
 				"EXPO_PUBLIC_BASE_URL": "https://e9a73bc2-3956-479d-b60d-d23d0db78403.created.app",
-				"EXPO_PUBLIC_CREATE_ENV": "PRODUCTION",
+				"EXPO_PUBLIC_CREATE_ENV": "DEVELOPMENT",
 				"EXPO_PUBLIC_HOST": "e9a73bc2-3956-479d-b60d-d23d0db78403.created.app",
 				"EXPO_PUBLIC_PROJECT_GROUP_ID": "e9a73bc2-3956-479d-b60d-d23d0db78403",
-				"EXPO_PUBLIC_NEONDB_URL": "postgresql://neondb_owner:npg_Uge6l5kyvjWc@ep-bold-thunder-a4yhhuxl-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require",
 				"EXPO_PUBLIC_SUPABASE_URL": "https://ivhovvnpaxnxeagwkbay.supabase.co",
 				"EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_K2WinTgj98Wd7KQgyzBK4g_U3ZFnVFn",
 				"EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY": "sb_publishable_K2WinTgj98Wd7KQgyzBK4g_U3ZFnVFn",
 				"EXPO_PUBLIC_ADMIN_EMAIL": "admin@cranewalah.com",
-				"EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "554236147468-ir1ikus94t0k9d49etac7v1dkn64r521.apps.googleusercontent.com"
+				"EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "1383521484-h7sop3125i6mvcob16p7ht8ph7c00k90.apps.googleusercontent.com"
+			}
+		},
+		"preview": {
+			"extends": "base",
+			"distribution": "internal",
+			"env": {
+				"EXPO_PUBLIC_APP_URL": "https://e9a73bc2-3956-479d-b60d-d23d0db78403.created.app",
+				"EXPO_PUBLIC_BASE_CREATE_USER_CONTENT_URL": "https://raw.createusercontent.com",
+				"EXPO_PUBLIC_BASE_URL": "https://e9a73bc2-3956-479d-b60d-d23d0db78403.created.app",
+				"EXPO_PUBLIC_CREATE_ENV": "DEVELOPMENT",
+				"EXPO_PUBLIC_HOST": "e9a73bc2-3956-479d-b60d-d23d0db78403.created.app",
+				"EXPO_PUBLIC_PROJECT_GROUP_ID": "e9a73bc2-3956-479d-b60d-d23d0db78403",
+				"EXPO_PUBLIC_SUPABASE_URL": "https://ivhovvnpaxnxeagwkbay.supabase.co",
+				"EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_K2WinTgj98Wd7KQgyzBK4g_U3ZFnVFn",
+				"EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY": "sb_publishable_K2WinTgj98Wd7KQgyzBK4g_U3ZFnVFn",
+				"EXPO_PUBLIC_ADMIN_EMAIL": "admin@cranewalah.com",
+				"EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "1383521484-h7sop3125i6mvcob16p7ht8ph7c00k90.apps.googleusercontent.com"
 			}
 		},
 		"production-apk": {
 			"extends": "base",
 			"autoIncrement": true,
+			"distribution": "internal",
 			"android": {
 				"buildType": "apk"
 			},
@@ -60,12 +58,11 @@
 				"EXPO_PUBLIC_CREATE_ENV": "PRODUCTION",
 				"EXPO_PUBLIC_HOST": "e9a73bc2-3956-479d-b60d-d23d0db78403.created.app",
 				"EXPO_PUBLIC_PROJECT_GROUP_ID": "e9a73bc2-3956-479d-b60d-d23d0db78403",
-				"EXPO_PUBLIC_NEONDB_URL": "postgresql://neondb_owner:npg_Uge6l5kyvjWc@ep-bold-thunder-a4yhhuxl-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require",
 				"EXPO_PUBLIC_SUPABASE_URL": "https://ivhovvnpaxnxeagwkbay.supabase.co",
 				"EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_K2WinTgj98Wd7KQgyzBK4g_U3ZFnVFn",
 				"EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY": "sb_publishable_K2WinTgj98Wd7KQgyzBK4g_U3ZFnVFn",
 				"EXPO_PUBLIC_ADMIN_EMAIL": "admin@cranewalah.com",
-				"EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "554236147468-ir1ikus94t0k9d49etac7v1dkn64r521.apps.googleusercontent.com"
+				"EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "1383521484-h7sop3125i6mvcob16p7ht8ph7c00k90.apps.googleusercontent.com"
 			}
 		}
 	}

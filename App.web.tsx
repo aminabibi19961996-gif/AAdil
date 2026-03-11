@@ -2,7 +2,6 @@ import { usePathname, useRouter } from 'expo-router';
 import { App } from 'expo-router/build/qualified-entry';
 import React, { memo, useEffect, useState } from 'react';
 import { ErrorBoundaryWrapper } from './__create/SharedErrorBoundary';
-import './src/__create/polyfills';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Toaster } from 'sonner-native';
 import { AlertModal } from './polyfills/web/alerts.web';

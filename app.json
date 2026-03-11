@@ -17,7 +17,18 @@
         "android.permission.ACCESS_FINE_LOCATION"
       ],
       "versionCode": 1,
-      "package": "com.mohammadsaiyed.cranewalah"
+      "package": "com.mohammadsaiyed.cranewalah",
+      "googleServicesFile": "./google-services.json"
+    },
+    "ios": {
+      "bundleIdentifier": "com.mohammadsaiyed.cranewalah",
+      "buildNumber": "1",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "We need your location to show nearby cranes and trucks",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "We need your location to find nearby crane services",
+        "NSCameraUsageDescription": "We need camera access to take photos of crane/truck issues",
+        "NSPhotoLibraryUsageDescription": "We need photo library access to upload images"
+      }
     },
     "plugins": [
       [

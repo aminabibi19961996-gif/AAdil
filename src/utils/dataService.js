@@ -199,18 +199,10 @@ export async function deleteTruck(id) {
 
 // ─── CRANE BOOKINGS ──────────────────────────────────────
 
-/**
- * Generate a booking ID like CRN-20260320-001
- */
-async function generateCraneBookingId(bookingDate) {
-    const dateStr = bookingDate.replace(/-/g, '');
-    const { count, error } = await supabase
-        .from('crane_bookings')
-        .select('*', { count: 'exact', head: true })
-        .like('booking_id', `CRN-${dateStr}-%`);
-
-    const seqNum = ((count || 0) + 1).toString().padStart(3, '0');
-    return `CRN-${dateStr}-${seqNum}`;
+function generateCraneBookingId() {
+    const timestamp = Date.now();
+    const random = Math.random().toString(36).substring(2, 8).toUpperCase();
+    return `CB-${timestamp}-${random}`;
 }
 
 /**
@@ -227,7 +219,7 @@ export async function createCraneBooking(bookingData) {
         totalPrice = totalPrice * 1.5;
     }
 
-    const bookingId = await generateCraneBookingId(bookingData.booking_date);
+    const bookingId = generateCraneBookingId();
 
     const { data, error } = await supabase
         .from('crane_bookings')
@@ -265,18 +257,10 @@ export async function createCraneBooking(bookingData) {
 
 // ─── TRUCK BOOKINGS ──────────────────────────────────────
 
-/**
- * Generate a booking ID like TRK-20260320-001
- */
-async function generateTruckBookingId(bookingDate) {
-    const dateStr = bookingDate.replace(/-/g, '');
-    const { count, error } = await supabase
-        .from('truck_bookings')
-        .select('*', { count: 'exact', head: true })
-        .like('booking_id', `TRK-${dateStr}-%`);
-
-    const seqNum = ((count || 0) + 1).toString().padStart(3, '0');
-    return `TRK-${dateStr}-${seqNum}`;
+function generateTruckBookingId() {
+    const timestamp = Date.now();
+    const random = Math.random().toString(36).substring(2, 8).toUpperCase();
+    return `TB-${timestamp}-${random}`;
 }
 
 /**
@@ -293,7 +277,7 @@ export async function createTruckBooking(bookingData) {
         totalPrice = totalPrice * 1.5;
     }
 
-    const bookingId = await generateTruckBookingId(bookingData.booking_date);
+    const bookingId = generateTruckBookingId();
 
     const { data, error } = await supabase
         .from('truck_bookings')
